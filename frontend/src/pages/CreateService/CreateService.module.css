@@ -1,0 +1,101 @@
+.container {
+    min-height: calc(100vh - 70px); /* Subtrai a altura aproximada da navbar */
+    background-color: #121212;
+    color: #e5e7eb;
+    padding: 2rem;
+    padding-top: 3rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: #d1d5db;
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+  }
+
+.loadingContainer {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #121212;
+    color: #e5e7eb;
+    font-size: 1.2rem;
+  }
+
+.formContainer {
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #1f2937;
+    padding: 2.5rem;
+    border-radius: 8px;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #d1d5db;
+  }
+  
+  .input, .textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    color: #f3f4f6;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+  }
+  
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+  
+  .textarea {
+    resize: vertical; /* Permite que o usuário redimensione a altura */
+  }
+  
+  .submitButton {
+    padding: 0.9rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+  }
+  
+  .submitButton:hover {
+    background-color: #2563eb;
+  }
+  
+  .error {
+    color: #ef4444; /* Vermelho */
+    text-align: center;
+    font-size: 0.9rem;
+  }

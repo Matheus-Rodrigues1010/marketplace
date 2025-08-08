@@ -1,26 +1,19 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
-// --- 1. Definindo os Tipos (O Contrato) ---
-
-// O formato do nosso objeto de usuário
+// --- Nenhuma mudança nos tipos ---
 interface IUser {
   id: number;
   name: string;
   email: string;
 }
 
-// O que nosso contexto vai fornecer para os componentes
 interface IAuthContext {
-  user: IUser | null; // O usuário pode estar logado (IUser) ou não (null)
-  isLoading: boolean; // Para sabermos se uma operação de login está em andamento
-  login: (email: string, password: string) => Promise<void>; // Função para fazer login
-  logout: () => void; // Função para fazer logout
+  user: IUser | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
 
-// --- 2. Criando o Contexto ---
-
-// Criamos o contexto com um valor padrão. 
-// Isso evita erros caso um componente tente usar o contexto sem um Provedor.
 export const AuthContext = createContext<IAuthContext>({
   user: null,
   isLoading: false,
@@ -28,37 +21,45 @@ export const AuthContext = createContext<IAuthContext>({
   logout: () => {},
 });
 
-
-// --- 3. Criando o Provedor (O Componente "Mágico") ---
-
-// Este componente vai "prover" o contexto para toda a aplicação.
-// Ele precisa de 'children' para poder envolver outros componentes.
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // O estado que vai guardar as informações do usuário
   const [user, setUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // --- MUDANÇA 1: Começar como 'true' para dar tempo de verificar o localStorage ---
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // A função de login que os componentes vão chamar
+  // --- MUDANÇA 2: Novo useEffect para carregar o usuário do localStorage ao iniciar ---
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        // Se encontrarmos um usuário, o colocamos no estado
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Failed to parse user from localStorage", error);
+        localStorage.removeItem('user');
+      }
+    }
+    // Independente de encontrar um usuário ou não, terminamos o carregamento inicial.
+    setIsLoading(false);
+  }, []); // O array vazio [] garante que isso rode apenas uma vez, no início.
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-
-    // SIMULAÇÃO DE API: Mantemos a mesma lógica por enquanto
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simula a espera da rede
-
+      await new Promise(resolve => setTimeout(resolve, 1000));
       if (email === 'usuario@example.com' && password === 'senha123') {
         const loggedInUser: IUser = {
           id: 1,
           name: 'Ana Silva',
           email: 'usuario@example.com',
         };
-        setUser(loggedInUser); // ATUALIZA O ESTADO GLOBAL!
+        setUser(loggedInUser);
+        // --- MUDANÇA 3: Salvar o usuário no localStorage ---
+        localStorage.setItem('user', JSON.stringify(loggedInUser));
       } else {
-        // Lança um erro que será pego no componente de Login
         throw new Error('Credenciais inválidas.');
       }
     } finally {
@@ -66,18 +67,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // A função de logout
   const logout = () => {
-    setUser(null); // Simplesmente limpa o estado do usuário
+    setUser(null);
+    // --- MUDANÇA 4: Remover o usuário do localStorage ---
+    localStorage.removeItem('user');
   };
 
-  // O valor que será compartilhado com todos os componentes filhos
-  const contextValue = {
-    user,
-    isLoading,
-    login,
-    logout,
-  };
+  const contextValue = { user, isLoading, login, logout };
 
   return (
     <AuthContext.Provider value={contextValue}>

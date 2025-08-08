@@ -1,39 +1,40 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import Navbar from './components/Navbar/Navbar';
+// 1. Importe o novo ServiceProvider
+import { ServiceProvider } from './contexts/ServiceContext';
 
-// Importação das suas páginas
+import Navbar from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Profile from './pages/Profile/Profile';
 import Services from './pages/Services/services';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
-
-// A linha que importava 'App.css' não é mais necessária se você limpou o arquivo
-// ou se vai deletá-lo.
+import CreateService from './pages/CreateService/CreateService';
 
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Navbar />
-
-        {/* --- MUDANÇA PRINCIPAL AQUI --- */}
-        {/* A classe 'App' foi removida da tag 'main' */}
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/productdetails/:id" element={<ProductDetails />} />
-            <Route path="*" element={<div className="text-center mt-20 text-2xl font-bold">Página não encontrada</div>} />
-          </Routes>
-        </main>
-      </Router>
+      {/* 2. Envolva o Router com o ServiceProvider */}
+      <ServiceProvider>
+        <Router>
+          <Navbar />
+          <main>
+            <Routes>
+              {/* Nenhuma mudança nas rotas */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/productdetails/:id" element={<ProductDetails />} />
+              <Route path="/create-service" element={<CreateService />} />
+              <Route path="*" element={<div className="text-center mt-20 text-2xl font-bold">Página não encontrada</div>} />
+            </Routes>
+          </main>
+        </Router>
+      </ServiceProvider>
     </AuthProvider>
   );
 }

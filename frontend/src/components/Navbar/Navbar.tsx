@@ -1,25 +1,19 @@
 import React, { useContext } from 'react';
-// Usaremos NavLink em vez de Link para obter o estilo de "link ativo"
 import { Link, NavLink } from 'react-router-dom';
-
-// Importando nosso contexto e estilos
 import { AuthContext } from '../../contexts/AuthContext';
 import styles from './Navbar.module.css';
 
 const Navbar = () => {
-  // Conectando ao contexto para saber se há um usuário e para usar a função de logout
   const { user, logout } = useContext(AuthContext);
 
   return (
     <nav className={styles.navbar}>
-      {/* Logo que sempre leva para a Home */}
       <Link to="/" className={styles.logo}>
         Marketplace
       </Link>
 
-      {/* Container para os links de navegação */}
       <div className={styles.navLinks}>
-        {/* Links que aparecem para todos */}
+        {/* Links públicos */}
         <NavLink 
           to="/" 
           className={({ isActive }) => isActive ? styles.active : styles.navLink}
@@ -33,10 +27,16 @@ const Navbar = () => {
           Serviços
         </NavLink>
 
-        {/* --- Lógica Condicional --- */}
         {user ? (
-          // Se houver um usuário logado:
+          // --- MUDANÇA AQUI (SEÇÃO DO USUÁRIO LOGADO) ---
           <>
+            {/* 1. ADICIONADO o link para "Criar Serviço" */}
+            <NavLink 
+              to="/create-service" 
+              className={({ isActive }) => isActive ? styles.active : styles.navLink}
+            >
+              Criar Serviço
+            </NavLink>
             <NavLink 
               to="/profile" 
               className={({ isActive }) => isActive ? styles.active : styles.navLink}
@@ -48,7 +48,7 @@ const Navbar = () => {
             </button>
           </>
         ) : (
-          // Se NÃO houver um usuário logado:
+          // Seção do visitante (sem alterações)
           <>
             <NavLink 
               to="/login" 

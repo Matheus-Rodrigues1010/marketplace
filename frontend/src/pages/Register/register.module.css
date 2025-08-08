@@ -1,0 +1,101 @@
+/* src/pages/Register/Register.module.css */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #121212;
+  padding: 1rem;
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 420px; /* Um pouco mais largo para acomodar mais campos */
+  padding: 2.5rem;
+  background-color: #1f2937;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem; /* Espaçamento entre os campos */
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background-color: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  color: #f3f4f6;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.button {
+  padding: 0.9rem 1rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ef4444; /* Vermelho */
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0;
+}
+
+.links {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.link {
+  color: #60a5fa;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
