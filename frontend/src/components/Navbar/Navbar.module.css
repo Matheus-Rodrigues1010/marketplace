@@ -1,0 +1,69 @@
+/* src/components/Navbar/Navbar.module.css */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #1f2937; /* Mesmo cinza-azulado escuro do Profile */
+    color: #f9fafb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: sticky; /* Fixa no topo ao rolar a página */
+    top: 0;
+    z-index: 1000;
+    flex-wrap: wrap; /* Permite que os itens quebrem linha em telas pequenas */
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+  }
+  
+  .navLinks {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .navLink {
+    color: #d1d5db; /* Cinza claro */
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  
+  .navLink:hover {
+    color: #ffffff;
+  }
+  
+  /* Estilo especial para o link ativo */
+  .active {
+    composes: navLink; /* Herda todos os estilos de .navLink */
+    color: #ffffff;
+    border-bottom-color: #3b82f6; /* Borda azul */
+  }
+  
+  .ctaButton {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  .ctaButton:hover {
+    background-color: #2563eb;
+  }
+  
+  .logoutButton {
+    composes: ctaButton; /* Herda estilos do botão de ação */
+    background-color: #ef4444; /* Vermelho */
+  }
+  .logoutButton:hover {
+    background-color: #dc2626;
+  }

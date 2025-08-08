@@ -1,57 +1,62 @@
-import React, { useState } from "react";
-import "./Profile.css";
+import React, { useContext, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+
+// 1. Importar o AuthContext e os estilos
+import { AuthContext } from '../../contexts/AuthContext';
+import styles from './Profile.module.css';
 
 const Profile = () => {
-  const [user, setUser] = useState({
-    name: "User da Silva",
-    email: "user.silva@example.com",
-    avatarUrl: "https://i.pravatar.cc/150", // Um site que gera avatares aleatórios
-    joinDate: "2025-08-07T10:00:00Z",
-  });
+  // 2. Usar o contexto para pegar o usuário e a função de logout
+  const { user, logout, isLoading } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // --- MELHORIA 2: Adicionando Interatividade ---
-  const handleEditClick = () => {
-    // Por enquanto, apenas um alerta.
-    // No futuro, isso pode abrir um modal de edição ou navegar para a página /edit-profile.
-    alert("Funcionalidade de edição a ser implementada!");
+  // 3. PROTEGER A ROTA: Efeito que roda ao carregar o componente
+  useEffect(() => {
+    // Se o carregamento inicial ainda não terminou, não faça nada
+    if (isLoading) {
+      return;
+    }
+    // Se o carregamento terminou E não há usuário, redirecione para o login
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, isLoading, navigate]); // Roda sempre que uma dessas variáveis mudar
+
+  // Função para lidar com o clique no botão de logout
+  const handleLogout = () => {
+    logout(); // Chama a função de logout do contexto
+    // navigate('/'); // O redirecionamento já acontece no useEffect, mas pode ser explícito aqui também
   };
 
-  // --- MELHORIA 3: Lidando com a ausência de dados ---
-  if (!user) {
-    return <div className="text-center mt-10">Carregando perfil...</div>;
+  // 4. Exibir um estado de carregamento enquanto o contexto verifica o usuário
+  if (isLoading || !user) {
+    return <div className={styles.loading}>Carregando perfil...</div>;
   }
-
+  
+  // 5. Se chegamos aqui, temos um usuário! Exiba suas informações.
   return (
-    // Utilizando Tailwind CSS para consistência com suas outras rotas.
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl my-8 p-8">
-      <div className="flex flex-col items-center">
-        {/* Usando o avatar dinâmico */}
+    <div className={styles.container}>
+      <div className={styles.profileCard}>
         <img
-          className="h-24 w-24 rounded-full object-cover"
-          src={user.avatarUrl}
+          // Usando um avatar genérico por enquanto
+          src={`https://api.pravatar.cc/150?u=${user.email}`}
           alt={`Avatar de ${user.name}`}
+          className={styles.avatar}
         />
-        {/* Usando o nome dinâmico */}
-        <h2 className="text-2xl font-bold mt-4">{user.name}</h2>
-      </div>
+        <h2 className={styles.name}>{user.name}</h2>
+        <p className={styles.email}>{user.email}</p>
 
-      <div className="mt-6">
-        <p className="text-gray-600">
-          <span className="font-semibold">Email:</span> {user.email}
-        </p>
-        <p className="text-gray-600 mt-2">
-          <span className="font-semibold">Membro desde:</span>{" "}
-          {new Date(user.joinDate).toLocaleDateString("pt-BR")}
-        </p>
-        {/* Você pode adicionar mais campos do usuário aqui, como biografia, etc. */}
-      </div>
+        <div className={styles.details}>
+          <p className={styles.detailItem}>
+            <span>ID do Usuário:</span> {user.id}
+          </p>
+          <p className={styles.detailItem}>
+            <span>Status:</span> Conectado
+          </p>
+        </div>
 
-      <div className="mt-8 flex justify-center">
-        <button
-          onClick={handleEditClick}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Editar Perfil
+        <button onClick={handleLogout} className={styles.logoutButton}>
+          Sair (Logout)
         </button>
       </div>
     </div>

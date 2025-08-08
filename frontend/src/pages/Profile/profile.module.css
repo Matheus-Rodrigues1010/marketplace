@@ -1,0 +1,101 @@
+/* src/pages/Profile/Profile.module.css */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinha no topo */
+  min-height: 100vh;
+  background-color: #121212;
+  padding: 2rem;
+  padding-top: 5rem; /* Mais espaço no topo */
+}
+
+.profileCard {
+  width: 100%;
+  max-width: 500px;
+  background-color: #1f2937;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  text-align: center;
+  color: #e5e7eb;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
+  border: 3px solid #3b82f6;
+}
+
+.name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.email {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+.details {
+  text-align: left;
+  margin-bottom: 2rem;
+  border-top: 1px solid #374151;
+  padding-top: 1.5rem;
+}
+
+.detailItem {
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+}
+
+.detailItem span {
+  font-weight: 600;
+  color: #d1d5db;
+  margin-right: 0.5rem;
+}
+
+.logoutButton {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #ef4444; /* Vermelho para ação destrutiva */
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logoutButton:hover {
+  background-color: #dc2626; /* Vermelho mais escuro */
+}
+
+.loading, .unauthorized {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.loginLink {
+  margin-top: 1rem;
+  color: #60a5fa;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+}
