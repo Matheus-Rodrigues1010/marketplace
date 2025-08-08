@@ -4,7 +4,7 @@ import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Profile from './pages/Profile/Profile';
-import Products from './pages/Products/Products';
+import Services from './pages/Services/services';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
 
 export default function App() {
@@ -17,8 +17,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/productdetails" element={<ProductDetails />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/productdetails/:id" element={<ProductDetails />} />
           {/* Caso o usuário acesse uma rota inexistente */}
           <Route path="*" element={<div className="text-center mt-20 text-2xl font-bold">Página não encontrada</div>} />
         </Routes>
