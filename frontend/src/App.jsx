@@ -12,7 +12,7 @@ import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Profile from './pages/Profile/Profile';
-import Services from './pages/Services/services';
+import Services from './pages/Services/Services';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
 import CreateService from './pages/CreateService/CreateService';
 // 1. Importar a nova página
