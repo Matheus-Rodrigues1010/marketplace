@@ -1,0 +1,102 @@
+.container {
+    min-height: calc(100vh - 70px);
+    background-color: #121212;
+    padding: 1.5rem;
+  }
+  
+  .pageHeader {
+    background-color: #1f2937;
+    color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #d1d5db;
+  }
+  
+  .ordersList {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .orderCard {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background-color: #1f2937;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+  }
+  
+  .orderCard:hover {
+    background-color: #374151;
+  }
+  
+  .serviceImage {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  
+  .serviceInfo {
+    flex-grow: 1;
+  }
+  
+  .serviceTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+  }
+  
+  .seller, .date {
+    font-size: 0.9rem;
+    color: #9ca3af;
+  }
+  
+  .priceInfo {
+    text-align: right;
+  }
+  
+  .priceLabel {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+  }
+  
+  .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3b82f6;
+  }
+  
+  .emptyMessage, .loadingScreen {
+    text-align: center;
+    color: #9ca3af;
+    margin-top: 3rem;
+    font-size: 1.1rem;
+  }
+  
+  .loadingScreen {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
