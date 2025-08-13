@@ -9,7 +9,7 @@
 .pageHeader {
   background-color: #3b82f6;
   color: #ffffff;
-  padding: 1.5rem;
+  padding: 2rem; /* Aumentar o padding para acomodar a busca */
   border-radius: 8px;
   margin-bottom: 2rem;
   text-align: center;
@@ -24,9 +24,38 @@
 .subtitle {
   font-size: 1rem;
   color: #dbeafe;
+  margin-bottom: 1.5rem; /* Espaço antes da busca */
 }
 
-/* === NOVOS ESTILOS PARA OS FILTROS === */
+/* === NOVOS ESTILOS PARA A BARRA DE PESQUISA === */
+.searchContainer {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15); /* Fundo branco semitransparente */
+  color: #ffffff;
+  font-size: 1rem;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.searchInput::placeholder {
+  color: #dbeafe; /* Cor do placeholder */
+}
+
+.searchInput:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5); /* Anel de foco */
+}
+/* === FIM DOS NOVOS ESTILOS === */
+
 .filterContainer {
   display: flex;
   justify-content: center;
@@ -56,7 +85,6 @@
   color: #ffffff;
   border-color: #3b82f6;
 }
-/* === FIM DOS NOVOS ESTILOS === */
 
 .servicesGrid {
   display: grid;

@@ -148,3 +148,73 @@
   text-align: center;
   font-size: 0.9rem;
 }
+/* Adicione este código ao final de CreateService.module.css */
+
+.modalBodyContent p {
+  margin-bottom: 1.5rem;
+}
+
+.summary {
+  display: flex;
+  gap: 1rem;
+  background-color: #374151;
+  padding: 1rem;
+  border-radius: 8px;
+  align-items: center;
+}
+
+.summaryImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.summaryDetails h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.summaryDetails p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.summaryDetails strong {
+  color: #9ca3af;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancelButton, .confirmSubmitButton {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton {
+  background-color: #4b5563;
+  color: white;
+}
+.cancelButton:hover {
+  background-color: #6b7280;
+}
+
+.confirmSubmitButton {
+  background-color: #3b82f6;
+  color: white;
+}
+.confirmSubmitButton:hover {
+  background-color: #2563eb;
+}

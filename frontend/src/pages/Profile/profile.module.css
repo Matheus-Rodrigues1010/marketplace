@@ -142,3 +142,52 @@
   color: #ffffff;
   font-size: 1.2rem;
 }
+
+/* Adicione este código ao final de Profile.module.css */
+
+.modalBodyContent p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+.modalBodyContent strong {
+  color: #ffffff;
+}
+
+.warningText {
+  font-size: 0.9rem;
+  color: #fca5a5; /* Um vermelho claro para aviso */
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancelButton, .confirmDeleteButton {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton {
+  background-color: #4b5563;
+  color: white;
+}
+.cancelButton:hover {
+  background-color: #6b7280;
+}
+
+.confirmDeleteButton {
+  background-color: #ef4444;
+  color: white;
+}
+.confirmDeleteButton:hover {
+  background-color: #dc2626;
+}
