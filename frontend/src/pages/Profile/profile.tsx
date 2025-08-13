@@ -1,63 +1,85 @@
+
 import React, { useContext, useEffect } from 'react';
+// 1. Importar o Link para poder navegar
 import { useNavigate, Link } from 'react-router-dom';
 
-// 1. Importar o AuthContext e os estilos
 import { AuthContext } from '../../contexts/AuthContext';
+import { ServiceContext } from '../../contexts/ServiceContext';
 import styles from './Profile.module.css';
 
 const Profile = () => {
-  // 2. Usar o contexto para pegar o usuário e a função de logout
-  const { user, logout, isLoading } = useContext(AuthContext);
+  const { user, logout, isLoading: isAuthLoading } = useContext(AuthContext);
+  const { services, deleteService } = useContext(ServiceContext);
   const navigate = useNavigate();
 
-  // 3. PROTEGER A ROTA: Efeito que roda ao carregar o componente
   useEffect(() => {
-    // Se o carregamento inicial ainda não terminou, não faça nada
-    if (isLoading) {
-      return;
-    }
-    // Se o carregamento terminou E não há usuário, redirecione para o login
+    if (isAuthLoading) return;
     if (!user) {
       navigate('/login');
     }
-  }, [user, isLoading, navigate]); // Roda sempre que uma dessas variáveis mudar
+  }, [user, isAuthLoading, navigate]);
 
-  // Função para lidar com o clique no botão de logout
   const handleLogout = () => {
-    logout(); // Chama a função de logout do contexto
-    // navigate('/'); // O redirecionamento já acontece no useEffect, mas pode ser explícito aqui também
+    logout();
+  };
+  
+  const handleDeleteService = (serviceId: number) => {
+    if (window.confirm('Tem certeza de que deseja excluir este serviço? Esta ação não pode ser desfeita.')) {
+      deleteService(serviceId);
+    }
   };
 
-  // 4. Exibir um estado de carregamento enquanto o contexto verifica o usuário
-  if (isLoading || !user) {
+  const userServices = user 
+    ? services.filter(service => service.seller.name === user.name) 
+    : [];
+
+  if (isAuthLoading || !user) {
     return <div className={styles.loading}>Carregando perfil...</div>;
   }
-  
-  // 5. Se chegamos aqui, temos um usuário! Exiba suas informações.
+
   return (
     <div className={styles.container}>
       <div className={styles.profileCard}>
         <img
-          // Usando um avatar genérico por enquanto
           src={`https://api.pravatar.cc/150?u=${user.email}`}
           alt={`Avatar de ${user.name}`}
           className={styles.avatar}
         />
         <h2 className={styles.name}>{user.name}</h2>
         <p className={styles.email}>{user.email}</p>
-
-        <div className={styles.details}>
-          <p className={styles.detailItem}>
-            <span>ID do Usuário:</span> {user.id}
-          </p>
-          <p className={styles.detailItem}>
-            <span>Status:</span> Conectado
-          </p>
-        </div>
-
         <button onClick={handleLogout} className={styles.logoutButton}>
           Sair (Logout)
         </button>
+      </div>
+
+      <div className={styles.servicesSection}>
+        <h3 className={styles.sectionTitle}>Meus Serviços Publicados</h3>
+        {userServices.length > 0 ? (
+          <ul className={styles.serviceList}>
+            {userServices.map(service => (
+              <li key={service.id} className={styles.serviceItem}>
+                <span className={styles.serviceTitle}>{service.title}</span>
+                <div className={styles.serviceActions}>
+                  {/* 2. ADICIONAR o Link para a rota de edição */}
+                  <Link 
+                    to={`/edit-service/${service.id}`} 
+                    className={styles.editButton}
+                  >
+                    Editar
+                  </Link>
+                  <button 
+                    onClick={() => handleDeleteService(service.id)} 
+                    className={styles.deleteButton}
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.noServicesText}>Você ainda não publicou nenhum serviço.</p>
+        )}
       </div>
     </div>
   );
