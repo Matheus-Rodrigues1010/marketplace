@@ -1,56 +1,54 @@
 /* src/pages/Services/ServiceCard.module.css */
 
 .card {
-    display: block; /* Para que o Link se comporte como um bloco */
-    background-color: #1f2937;
-    border-radius: 8px;
-    overflow: hidden; /* Garante que a imagem não "vaze" das bordas arredondadas */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    text-decoration: none; /* Remove o sublinhado do link */
-    color: inherit; /* Herda a cor do texto do pai */
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px); /* Efeito de "levantar" o card */
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.25);
-  }
-  
-  .cardImage {
-    width: 100%;
-    height: 200px;
-    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
-    display: block; /* Remove qualquer espaço extra abaixo da imagem */
-  }
-  
-  .cardContent {
-    padding: 1.5rem;
-  }
-  
-  .cardTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-    
-    /* Truque de CSS para limitar o título a 2 linhas e adicionar "..." */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: 2.5em; /* Garante que o card mantenha a altura mesmo com 1 linha de título */
-  }
-  
-  .cardSeller {
-    font-size: 0.9rem;
-    color: #9ca3af;
-    margin-bottom: 1rem;
-  }
-  
-  .cardPrice {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #3b82f6; /* Azul para destaque */
-    text-align: right;
-  }
+  display: block;
+  background-color: #1f2937;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.25);
+}
+
+.cardImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.5em;
+}
+
+.cardSeller {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.cardPrice {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3b82f6;
+  text-align: right;
+}

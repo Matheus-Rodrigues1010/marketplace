@@ -1,60 +1,84 @@
-/* src/pages/Services/services.module.css (Versão Corrigida) */
+/* src/pages/Services/services.module.css */
 
 .container {
-    min-height: calc(100vh - 70px);
-    background-color: #121212;
-    padding: 1.5rem;
-  }
-  
-  .pageHeader {
-    background-color: #3b82f6;
-    color: #ffffff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 2.25rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  .subtitle {
-    font-size: 1rem;
-    color: #dbeafe;
-  }
-  
-  /* 
-    AQUI ESTÁ A MUDANÇA:
-    Definimos o grid para telas pequenas primeiro (mobile-first).
-  */
+  min-height: calc(100vh - 70px);
+  background-color: #121212;
+  padding: 1.5rem;
+}
+
+.pageHeader {
+  background-color: #3b82f6;
+  color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #dbeafe;
+}
+
+/* === NOVOS ESTILOS PARA OS FILTROS === */
+.filterContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #374151;
+  background-color: #1f2937;
+  color: #d1d5db;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.activeFilter {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+/* === FIM DOS NOVOS ESTILOS === */
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.emptyMessage {
+  text-align: center;
+  color: #9ca3af;
+  margin-top: 3rem;
+  font-size: 1.1rem;
+}
+
+@media (min-width: 640px) {
   .servicesGrid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .emptyMessage {
-    text-align: center;
-    color: #9ca3af;
-    margin-top: 3rem;
-    font-size: 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .servicesGrid {
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  /* 
-    E DEPOIS, ADICIONAMOS AS MEDIA QUERIES NO FINAL DO ARQUIVO.
-    Esta estrutura é mais robusta e menos propensa a erros com o PostCSS.
-  */
-  @media (min-width: 640px) {
-    .servicesGrid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .servicesGrid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
+}

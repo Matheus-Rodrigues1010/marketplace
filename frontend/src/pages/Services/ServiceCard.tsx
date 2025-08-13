@@ -1,17 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import styles from './ServiceCard.module.css'; // Importe o CSS do card
+// 1. Importar o arquivo de estilos
+import styles from './ServiceCard.module.css'; 
 
-// Definindo os tipos aqui para o componente ser autossuficiente
-interface IService {
-  id: number;
-  title: string;
-  price: number;
-  seller: {
-    name: string;
-  };
-  imageUrl: string;
-}
+// Importar a interface de um local compartilhado seria o ideal, mas vamos defini-la aqui para garantir.
+import { IService } from '../../contexts/ServiceContext';
 
 interface ServiceCardProps {
   service: IService;
@@ -20,9 +13,11 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const { id, title, price, seller, imageUrl } = service;
 
+  // 2. Aplicar as classes de estilo no JSX
   return (
     <Link to={`/productdetails/${id}`} className={styles.card}>
       <img className={styles.cardImage} src={imageUrl} alt={title} />
+      
       <div className={styles.cardContent}>
         <h3 className={styles.cardTitle}>{title}</h3>
         <p className={styles.cardSeller}>Oferecido por: {seller.name}</p>

@@ -1,0 +1,149 @@
+
+.pageContainer {
+  min-height: calc(100vh - 70px);
+  background-color: #121212;
+  color: #e5e7eb;
+  padding: 2rem;
+}
+
+.detailsCard {
+  max-width: 900px;
+  margin: 2rem auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  background-color: #1f2937;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .detailsCard {
+    grid-template-columns: 1fr 1fr;
+    padding: 3rem;
+  }
+}
+
+.imageContainer img {
+  width: 100%;
+  height: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.seller {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #d1d5db;
+  line-height: 1.6;
+  flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
+  margin-bottom: 1.5rem;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #3b82f6;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.hireButton {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.hireButton:hover {
+  background-color: #2563eb;
+  transform: scale(1.02);
+}
+
+/* Estilos para a seção de avaliações */
+.reviewsContainer {
+  max-width: 900px;
+  margin: 2rem auto;
+  background-color: #1f2937;
+  padding: 2rem;
+  border-radius: 12px;
+}
+
+.reviewsTitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 1rem;
+}
+
+.reviewItem {
+  border-bottom: 1px solid #374151;
+  padding: 1rem 0;
+}
+.reviewItem:last-child {
+  border-bottom: none;
+}
+
+.reviewAuthor {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.reviewText {
+  color: #d1d5db;
+}
+
+/* Estilos para telas de carregamento e erro */
+.feedbackScreen {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #121212;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.errorText {
+  color: #ef4444;
+}
+
+.backLink {
+  margin-top: 1rem;
+  color: #60a5fa;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
