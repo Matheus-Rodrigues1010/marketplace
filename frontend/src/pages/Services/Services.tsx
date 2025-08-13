@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ServiceContext } from '../../contexts/ServiceContext';
 import ServiceCard from './ServiceCard';
-import styles from './services.module.css';
+import styles from './Services.module.css';
 
 // Lista de categorias (sem alterações)
 const categories = ['Todos', 'Companhia', 'Habilidades', 'Aulas', 'Bem-Estar'];
