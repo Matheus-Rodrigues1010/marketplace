@@ -1,19 +1,10 @@
-/* src/index.css (Versão Definitiva) */
+/* index.css */
 
-/* Diretivas do Tailwind. Essenciais. */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* 
-  Regra de Ouro: Força a remoção de qualquer margem
-  que o navegador tente adicionar ao corpo da página.
-  Isso resolve o problema da "borda branca".
-*/
+/* Regras globais, mas sem as diretivas do Tailwind */
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box; /* Boa prática para controle de layout */
+  box-sizing: border-box;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -5,7 +5,7 @@ import styles from './Home.module.css';
 const Home = () => {
   return (
     <div className={styles.container}>
-      {/* Seção Principal (Hero) */}
+      {/* Seção Hero */}
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
           Seu Tempo, Suas Habilidades, Seu Valor.
@@ -13,30 +13,47 @@ const Home = () => {
         <p className={styles.heroSubtitle}>
           Uma nova forma de conectar pessoas. Venda uma hora do seu tempo, uma habilidade única ou uma experiência inesquecível.
         </p>
-        <Link 
-          to="/services" 
-          className={`${styles.ctaButton} ${styles.primaryButton}`}
-        >
-          Explore os Serviços
-        </Link>
       </section>
 
-      {/* Seção de Informações da Versão Beta */}
+      {/* Seção de Inscrição Beta */}
+      <section className={styles.signupSection}>
+        <h2 className={styles.signupTitle}>Garanta seu Acesso à Versão Oficial!</h2>
+        <p className={styles.signupText}>
+          Estamos trabalhando na versão completa com mais funcionalidades e segurança. Deixe seu e--mail abaixo para ser o primeiro a saber do lançamento e garantir sua vaga.
+        </p>
+        <div className={styles.formEmbedContainer}>
+          {/* SEU CÓDIGO DO GOOGLE FORMS INSERIDO AQUI */}
+          <iframe 
+            src="https://docs.google.com/forms/d/e/1FAIpQLSd9mzMlZTq8EEc5TJzO5AQVGhffORmiS6bFzkjura9jYyxL-w/viewform?embedded=true" 
+            width="100%" // Largura controlada pelo CSS
+            height="350" // Altura ajustada para ser mais compacta
+            frameBorder="0" 
+            marginHeight="0" 
+            marginWidth="0"
+          >
+            Carregando…
+          </iframe>
+        </div>
+      </section>
+
+      {/* Seção de Exploração da Versão de Testes */}
       <section className={styles.betaInfo}>
-        <h2 className={styles.betaTitle}>Bem-vindo à Versão Beta!</h2>
+        <h2 className={styles.betaTitle}>Enquanto Isso, Explore a Versão de Testes</h2>
         <p className={styles.betaText}>
-          Este é um protótipo funcional para demonstrar a ideia. Sinta-se à vontade para explorar, criar serviços e simular contratações. Seu feedback é muito valioso!
+          Este protótipo é totalmente funcional. Para facilitar, use as credenciais abaixo ou crie sua própria conta de teste.
         </p>
         <div className={styles.demoCredentials}>
-          <p>Para testar, use as credenciais abaixo ou crie sua própria conta.</p>
           <div className={styles.credentialsBox}>
             <p><strong>Email:</strong> <span>usuario@example.com</span></p>
             <p><strong>Senha:</strong> <span>senha123</span></p>
           </div>
+          <Link to="/login" className={styles.loginButton}>
+            Entrar com Usuário de Teste
+          </Link>
         </div>
       </section>
-
-      {/* Seção "Como Funciona" Dividida */}
+      
+      {/* Seção "Como Funciona" */}
       <section className={styles.howItWorks}>
         <div className={styles.column}>
           <h3 className={styles.columnTitle}>Para Vendedores</h3>
@@ -48,7 +65,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Seção Final de Chamada para Ação */}
+      {/* Seção Final CTA */}
       <section className={styles.finalCta}>
         <h2 className={styles.sectionTitle}>Pronto para Começar?</h2>
         <div className={styles.buttonContainer}>
