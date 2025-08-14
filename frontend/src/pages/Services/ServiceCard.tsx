@@ -1,22 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-// 1. Importar o arquivo de estilos
-import styles from './ServiceCard.module.css'; 
-
-// Importar a interface de um local compartilhado seria o ideal, mas vamos defini-la aqui para garantir.
+// Importar a interface IService é uma boa prática para garantir a consistência
 import { IService } from '../../contexts/ServiceContext';
+import styles from './ServiceCard.module.css';
 
 interface ServiceCardProps {
   service: IService;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
+  // Desestruturamos as propriedades para garantir que estamos usando os nomes corretos
   const { id, title, price, seller, imageUrl } = service;
 
-  // 2. Aplicar as classes de estilo no JSX
   return (
     <Link to={`/productdetails/${id}`} className={styles.card}>
-      <img className={styles.cardImage} src={imageUrl} alt={title} />
+      {/* A LINHA MAIS IMPORTANTE: Verifique se a tag img está exatamente assim */}
+      <img 
+        className={styles.cardImage} 
+        src={imageUrl} 
+        alt={title} 
+        // Adicionar um tratamento de erro de imagem pode nos dar pistas
+        onError={(e) => { 
+          console.error(`Erro ao carregar imagem: ${imageUrl}`);
+          // Opcional: substituir por uma imagem padrão em caso de erro
+          // (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/500"; 
+        }}
+      />
       
       <div className={styles.cardContent}>
         <h3 className={styles.cardTitle}>{title}</h3>

@@ -1,23 +1,20 @@
-/* src/pages/Home/Home.module.css (Tema Escuro) */
+/* src/pages/Home/Home.module.css */
 
-/* Estilos Gerais do Container */
 .container {
-  /* MUDANÇA: Fundo principal escuro e texto claro */
-  background-color: #121212; /* Um preto profundo, comum em dark modes */
-  color: #e5e7eb; /* Um cinza bem claro para o texto padrão */
+  background-color: #121212;
+  color: #e5e7eb;
   text-align: center;
 }
 
 /* --- Seção Principal (Hero) --- */
 .hero {
-  min-height: 90vh;
+  min-height: 70vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1.5rem;
-  /* MUDANÇA: Fundo sutilmente diferente para criar profundidade */
-  background-color: #1f2937; /* Um cinza-azulado escuro */
+  padding: 2rem;
+  background-color: #1f2937;
 }
 
 .heroTitle {
@@ -25,126 +22,159 @@
   font-weight: 800;
   margin-bottom: 1rem;
   max-width: 600px;
-  color: #ffffff; /* Título em branco puro para máximo impacto */
+  color: #ffffff;
 }
 
 .heroSubtitle {
   max-width: 600px;
   font-size: 1.125rem;
-  /* MUDANÇA: Texto do subtítulo mais suave */
-  color: #d1d5db; /* Cinza claro */
+  color: #d1d5db;
   margin-bottom: 2rem;
 }
 
-.buttonContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* --- Seção de Informações Beta --- */
+.betaInfo {
+  background-color: #111827; /* Um tom de azul ainda mais escuro */
+  padding: 3rem 1.5rem;
+  border-top: 1px solid #374151;
+  border-bottom: 1px solid #374151;
 }
 
-/* --- Botões de Ação --- */
-.ctaButton {
+.betaTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.betaText {
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  color: #d1d5db;
+  line-height: 1.6;
+}
+
+.demoCredentials {
+  background-color: #1f2937;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+}
+
+.demoCredentials p {
+  margin: 0;
+  color: #d1d5db;
+}
+
+.credentialsBox {
+  background-color: #111827;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 6px;
+  text-align: left;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.credentialsBox p {
+  margin: 0.5rem 0;
+}
+.credentialsBox strong {
+  color: #9ca3af;
+}
+.credentialsBox span {
+  color: #f3f4f6;
   font-weight: bold;
-  padding: 0.75rem 2rem;
-  border-radius: 9999px;
-  text-decoration: none;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* Sombra mais adequada para fundo escuro */
-  border: 1px solid transparent;
-  cursor: pointer;
 }
 
-/* O botão primário continua bom, o azul se destaca no fundo escuro */
-.primaryButton {
-  background-color: #3b82f6;
-  color: white;
-}
-.primaryButton:hover {
-  background-color: #2563eb;
-}
-
-/* MUDANÇA: O botão secundário agora é "vazado", um estilo comum em dark modes */
-.secondaryButton {
-  background-color: transparent;
-  color: #60a5fa; /* Um azul mais claro para melhor legibilidade */
-  border-color: #60a5fa;
-}
-.secondaryButton:hover {
-  background-color: rgba(59, 130, 246, 0.1); /* Um "brilho" azul sutil ao passar o mouse */
-  border-color: #93c5fd; /* Borda fica mais clara */
-}
-
-.loginLinkContainer {
-  margin-top: 2rem;
-  /* MUDANÇA: Cor do texto de apoio */
-  color: #9ca3af; /* Cinza médio-claro */
-}
-
-.loginLink {
-  /* MUDANÇA: Cor do link para combinar com o botão secundário */
-  color: #60a5fa;
-  font-weight: 600;
-  text-decoration: none;
-}
-.loginLink:hover {
-  text-decoration: underline;
-}
 
 /* --- Seção "Como Funciona" --- */
-/* Esta seção herda o fundo escuro do .container, então não precisa de cor própria */
 .howItWorks {
-  padding: 5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 4rem 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.column {
+  flex: 1;
+}
+
+.columnTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.column p {
+  color: #d1d5db;
+  line-height: 1.6;
+}
+
+/* --- Seção Final CTA --- */
+.finalCta {
+  background-color: #1f2937;
+  padding: 4rem 1.5rem;
 }
 
 .sectionTitle {
   font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 3rem;
-  color: #ffffff; /* Título da seção em branco puro */
+  margin-bottom: 2rem;
 }
 
-.featuresGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2.5rem;
-  max-width: 1024px;
-  margin: 0 auto;
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.feature {
-  padding: 1rem;
+/* --- Botões --- */
+.ctaButton {
+  font-weight: bold;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
+  cursor: pointer;
+  background-color: #3b82f6;
+  color: white;
+}
+.ctaButton:hover {
+  background-color: #2563eb;
 }
 
-.featureIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.secondaryButton {
+  background-color: transparent;
+  color: #60a5fa;
+  border-color: #60a5fa;
+}
+.secondaryButton:hover {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
-.featureTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #f9fafb; /* Títulos dos cards em cinza quase branco */
-}
-
-.featureText {
-  /* MUDANÇA: Cor do texto descritivo */
-  color: #d1d5db; /* Mesmo cinza claro do subtítulo */
+/* --- Footer --- */
+.footer {
+  padding: 2rem 1.5rem;
+  border-top: 1px solid #374151;
+  color: #9ca3af;
+  font-size: 0.9rem;
 }
 
 
-/* --- Responsividade (sem mudanças aqui) --- */
-@media (min-width: 640px) { /* sm */
-  .buttonContainer {
-    flex-direction: row;
-  }
-}
-
-@media (min-width: 768px) { /* md */
+/* --- Media Queries para Responsividade --- */
+@media (min-width: 768px) {
   .heroTitle {
-    font-size: 3.75rem;
+    font-size: 3.5rem;
   }
-  .featuresGrid {
-    grid-template-columns: repeat(3, 1fr);
+  .howItWorks {
+    flex-direction: row;
   }
 }

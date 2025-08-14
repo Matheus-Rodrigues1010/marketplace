@@ -99,3 +99,16 @@
 .link:hover {
   text-decoration: underline;
 }
+
+
+.infoText {
+  text-align: center;
+  color: #9ca3af; /* Um cinza mais claro para não se destacar tanto */
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: rgba(75, 85, 99, 0.2); /* Um fundo sutil */
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+}

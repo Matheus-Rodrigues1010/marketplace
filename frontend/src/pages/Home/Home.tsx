@@ -1,67 +1,68 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-// Importe o seu arquivo de CSS Module
 import styles from './Home.module.css';
 
-export default function Home() {
+const Home = () => {
   return (
-    // Em vez de strings, usamos o objeto 'styles' para acessar as classes
     <div className={styles.container}>
-      {/* 1. Hero Section */}
+      {/* Seção Principal (Hero) */}
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
           Seu Tempo, Suas Habilidades, Seu Valor.
         </h1>
         <p className={styles.heroSubtitle}>
-          Conectamos pessoas que precisam de ajuda com quem pode oferecer. Venda uma hora do seu tempo, uma habilidade única ou uma experiência inesquecível.
+          Uma nova forma de conectar pessoas. Venda uma hora do seu tempo, uma habilidade única ou uma experiência inesquecível.
         </p>
-        <div className={styles.buttonContainer}>
-          {/* Combinamos duas classes para o botão: a base e a de cor */}
-          <Link 
-            to="/services" 
-            className={`${styles.ctaButton} ${styles.primaryButton}`}
-          >
-            Explore Serviços Agora
-          </Link>
-          <Link 
-            to="/register" 
-            className={`${styles.ctaButton} ${styles.secondaryButton}`}
-          >
-            Quero Vender Meu Tempo
-          </Link>
-        </div>
-        <p className={styles.loginLinkContainer}>
-          Já tem uma conta?{' '}
-          <Link to="/login" className={styles.loginLink}>
-            Faça Login
-          </Link>
-        </p>
+        <Link 
+          to="/services" 
+          className={`${styles.ctaButton} ${styles.primaryButton}`}
+        >
+          Explore os Serviços
+        </Link>
       </section>
 
-      {/* 2. Seção "Como Funciona" */}
+      {/* Seção de Informações da Versão Beta */}
+      <section className={styles.betaInfo}>
+        <h2 className={styles.betaTitle}>Bem-vindo à Versão Beta!</h2>
+        <p className={styles.betaText}>
+          Este é um protótipo funcional para demonstrar a ideia. Sinta-se à vontade para explorar, criar serviços e simular contratações. Seu feedback é muito valioso!
+        </p>
+        <div className={styles.demoCredentials}>
+          <p>Para testar, use as credenciais abaixo ou crie sua própria conta.</p>
+          <div className={styles.credentialsBox}>
+            <p><strong>Email:</strong> <span>usuario@example.com</span></p>
+            <p><strong>Senha:</strong> <span>senha123</span></p>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção "Como Funciona" Dividida */}
       <section className={styles.howItWorks}>
-        <h2 className={styles.sectionTitle}>É simples, rápido e humano.</h2>
-        <div className={styles.featuresGrid}>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>🔍</div>
-            <h3 className={styles.featureTitle}>Encontre o que Precisa</h3>
-            <p className={styles.featureText}>Navegue por dezenas de serviços únicos, de uma caminhada no parque a uma aula de violão.</p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>🤝</div>
-            <h3 className={styles.featureTitle}>Contrate com Segurança</h3>
-            <p className={styles.featureText}>Converse com o vendedor, agende o melhor horário e pague com segurança pela nossa plataforma.</p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>❤️</div>
-            <h3 className={styles.featureTitle}>Compartilhe e Ganhe</h3>
-            <p className={styles.featureText}>Tem um talento ou tempo livre? Crie seu anúncio e comece a ganhar dinheiro fazendo o que gosta.</p>
-          </div>
+        <div className={styles.column}>
+          <h3 className={styles.columnTitle}>Para Vendedores</h3>
+          <p>Transforme seu tempo e talento em renda. Crie um anúncio, defina seu preço e conecte-se com pessoas que precisam do que você oferece. É simples, flexível e gratificante.</p>
+        </div>
+        <div className={styles.column}>
+          <h3 className={styles.columnTitle}>Para Compradores</h3>
+          <p>Encontre ajuda, companhia ou aprenda algo novo. Contrate pessoas para tarefas do dia a dia, para ter uma conversa interessante ou para te ensinar uma nova habilidade.</p>
         </div>
       </section>
 
-      {/* Você pode continuar o resto das seções seguindo o mesmo padrão */}
+      {/* Seção Final de Chamada para Ação */}
+      <section className={styles.finalCta}>
+        <h2 className={styles.sectionTitle}>Pronto para Começar?</h2>
+        <div className={styles.buttonContainer}>
+          <Link to="/services" className={styles.ctaButton}>Ver todos os serviços</Link>
+          <Link to="/register" className={`${styles.ctaButton} ${styles.secondaryButton}`}>Quero vender meu tempo</Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p>&copy; {new Date().getFullYear()} Marketplace. Versão Beta.</p>
+      </footer>
     </div>
   );
-}
+};
+
+export default Home;

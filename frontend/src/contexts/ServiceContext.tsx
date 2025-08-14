@@ -1,6 +1,6 @@
 import React, { createContext, useState, ReactNode } from 'react';
 
-// Tipos e Interfaces (sem alterações)
+// Tipos e Interfaces
 export type Category = 'Companhia' | 'Habilidades' | 'Aulas' | 'Bem-Estar';
 
 export interface IService {
@@ -34,77 +34,73 @@ export const ServiceContext = createContext<IServiceContext>({
   updateService: () => {},
 });
 
-// --- ATUALIZAÇÃO PRINCIPAL AQUI ---
-// Lista de serviços iniciais expandida e com a imagem corrigida
+// --- LISTA DE DADOS MAPEADA EXATAMENTE PARA SEUS ARQUIVOS ---
 const initialServices: IService[] = [
     { 
       id: 1, 
       title: '1h de caminhada no parque', 
-      description: 'Uma hora de caminhada relaxante para conversar, desabafar ou simplesmente aproveitar a natureza. O ritmo é seu!', 
+      description: 'Uma hora de caminhada relaxante para conversar e aproveitar a natureza.', 
       price: 50, 
       seller: { name: 'Carlos' }, 
-      imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=500&q=80', 
+      imageUrl: '/images/caminhada.jpg', // Corresponde a caminhada.jpg
       category: 'Bem-Estar' 
     },
     { 
       id: 2, 
       title: 'Retrato a lápis', 
-      description: 'Faço um retrato realista seu ou de quem você ama em grafite sobre papel Canson A4. Envio digitalizado em alta resolução.', 
+      description: 'Faço um retrato realista seu ou de quem você ama em grafite.', 
       price: 120, 
       seller: { name: 'Juliana' }, 
-      // URL da imagem corrigida para uma que funciona
-      imageUrl: 'https://images.unsplash.com/photo-1596756187295-a548e08a0df7?w=500&q=80', 
+      imageUrl: '/images/retrato.jpg', // Corresponde a retrato.jpg
       category: 'Habilidades' 
     },
     { 
       id: 3, 
       title: 'Meia hora de conversa empática', 
-      description: 'Um ombro amigo para desabafar, organizar as ideias ou simplesmente ter uma conversa leve. Total sigilo e empatia.', 
+      description: 'Um ombro amigo para desabafar, organizar as ideias ou simplesmente ter uma conversa leve.', 
       price: 30, 
       seller: { name: 'Beatriz' }, 
-      imageUrl: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500&q=80', 
+      imageUrl: '/images/conversa.jpg', // Corresponde a conversa.jpg
       category: 'Companhia' 
     },
     { 
       id: 4, 
       title: 'Aula de violão para iniciantes', 
-      description: 'Aprenda os primeiros acordes e suas primeiras músicas no violão. Aula focada na prática e na diversão.', 
+      description: 'Aprenda os primeiros acordes e suas primeiras músicas no violão.', 
       price: 75, 
       seller: { name: 'Ricardo' }, 
-      imageUrl: 'https://images.unsplash.com/photo-1550291652-6ea9114a47b1?w=500&q=80', 
+      imageUrl: '/images/violao.jpeg', // Corresponde a violao.jpeg
       category: 'Aulas' 
     },
-    // --- NOVOS SERVIÇOS ADICIONADOS ---
     {
       id: 5,
       title: 'Consultoria de organização de armário',
-      description: 'Ajudo você a organizar seu guarda-roupa, otimizando espaços e facilitando a escolha das suas roupas no dia a dia.',
+      description: 'Ajudo você a organizar seu guarda-roupa, otimizando espaços.',
       price: 150,
       seller: { name: 'Mariana' },
-      imageUrl: 'https://images.unsplash.com/photo-1590482424227-24831206c137?w=500&q=80',
+      imageUrl: '/images/armario.jpg', // Corresponde a armario.jpg
       category: 'Habilidades'
     },
     {
       id: 6,
       title: 'Companhia para um café',
-      description: 'Quer conhecer um café novo ou apenas ter uma boa conversa? Ofereço uma companhia agradável para um momento relaxante.',
+      description: 'Ofereço uma companhia agradável para um momento relaxante.',
       price: 40,
       seller: { name: 'Lucas' },
-      imageUrl: 'https://images.unsplash.com/photo-1511920183353-3c9c6b71f209?w=500&q=80',
+      imageUrl: '/images/cafe.jpeg', // Corresponde a cafe.jpeg
       category: 'Companhia'
     },
     {
       id: 7,
       title: 'Sessão de meditação guiada online',
-      description: 'Uma sessão de 30 minutos de meditação guiada por vídeo-chamada para aliviar o estresse e a ansiedade.',
+      description: 'Uma sessão de 30 minutos de meditação guiada para aliviar o estresse.',
       price: 60,
       seller: { name: 'Sofia' },
-      imageUrl: 'https://images.unsplash.com/photo-1601779143934-2a1491a13a28?w=500&q=80',
+      imageUrl: '/images/meditacao.jpg', // Corresponde a meditacao.jpg
       category: 'Bem-Estar'
     }
 ];
 
-// O resto do arquivo (ServiceProvider, funções addService, deleteService, updateService) continua exatamente o mesmo.
 interface ServiceProviderProps {
   children: ReactNode;
 }
@@ -122,21 +118,21 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
       ...serviceData,
       id: Date.now(),
       seller: { name: sellerName },
-      imageUrl: imageUrlParam || `https://source.unsplash.com/random/500x500?sig=${Date.now()}`,
+      imageUrl: imageUrlParam || '/images/caminhada.jpg', // Fallback para novos serviços
       category: category,
     };
-    setServices(prevServices => [...prevServices, newService]);
+    setServices((prevServices) => [...prevServices, newService]);
   };
 
   const deleteService = (serviceId: number) => {
-    setServices(prevServices => 
-      prevServices.filter(service => service.id !== serviceId)
+    setServices((prevServices) => 
+      prevServices.filter((service) => service.id !== serviceId)
     );
   };
 
   const updateService = (serviceId: number, updatedData: Partial<Omit<IService, 'id' | 'seller'>>) => {
-    setServices(prevServices =>
-      prevServices.map(service => {
+    setServices((prevServices) =>
+      prevServices.map((service) => {
         if (service.id === serviceId) {
           return { ...service, ...updatedData };
         }

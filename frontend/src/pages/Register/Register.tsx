@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// 1. Importar os estilos
 import styles from './Register.module.css'; 
 
 const Register = () => {
@@ -27,7 +26,7 @@ const Register = () => {
       console.log("Registrando usuário:", { fullName, email });
       await new Promise(resolve => setTimeout(resolve, 1500)); 
       
-      alert("Cadastro realizado com sucesso! Você será redirecionado para o login.");
+      alert("Demonstração de cadastro bem-sucedida! Você será redirecionado para o login.");
       navigate("/login");
 
     } catch (err) {
@@ -37,11 +36,15 @@ const Register = () => {
     }
   };
 
-  // 2. Aplicar as classes de estilo no JSX
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
         <h2 className={styles.title}>Cadastre-se</h2>
+
+        {/* --- AVISO ADICIONADO AQUI --- */}
+        <p className={styles.infoText}>
+          Esta é uma versão de demonstração. Você pode criar uma conta para testar o fluxo, mas ela não será salva. Para explorar todas as funcionalidades, use as credenciais de teste na página inicial.
+        </p>
         
         <form onSubmit={handleSubmit} className={styles.form}>
           <input type="text" placeholder="Nome Completo" required className={styles.input}

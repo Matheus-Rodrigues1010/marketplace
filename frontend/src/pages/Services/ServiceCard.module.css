@@ -21,6 +21,8 @@
   height: 200px;
   object-fit: cover;
   display: block;
+  /* Garante que a imagem tenha uma cor de fundo enquanto carrega */
+  background-color: #374151; 
 }
 
 .cardContent {
