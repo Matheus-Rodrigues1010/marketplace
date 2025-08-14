@@ -19,17 +19,18 @@ const Home = () => {
       <section className={styles.signupSection}>
         <h2 className={styles.signupTitle}>Garanta seu Acesso à Versão Oficial!</h2>
         <p className={styles.signupText}>
-          Estamos trabalhando na versão completa com mais funcionalidades e segurança. Deixe seu e--mail abaixo para ser o primeiro a saber do lançamento e garantir sua vaga.
+          Estamos trabalhando na versão completa com mais funcionalidades e segurança. Deixe seu e-mail abaixo para ser o primeiro a saber do lançamento e garantir sua vaga.
         </p>
         <div className={styles.formEmbedContainer}>
-          {/* SEU CÓDIGO DO GOOGLE FORMS INSERIDO AQUI */}
           <iframe 
             src="https://docs.google.com/forms/d/e/1FAIpQLSd9mzMlZTq8EEc5TJzO5AQVGhffORmiS6bFzkjura9jYyxL-w/viewform?embedded=true" 
-            width="100%" // Largura controlada pelo CSS
-            height="350" // Altura ajustada para ser mais compacta
-            frameBorder="0" 
-            marginHeight="0" 
-            marginWidth="0"
+            width="100%" 
+            height="350"
+            
+            /* --- CORREÇÃO APLICADA AQUI --- */
+            frameBorder={0} // 'frameborder' virou 'frameBorder' (camelCase) e o valor é numérico
+            marginHeight={0} // Valor numérico, sem aspas
+            marginWidth={0} // Valor numérico, sem aspas
           >
             Carregando…
           </iframe>
