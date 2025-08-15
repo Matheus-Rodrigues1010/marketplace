@@ -1,42 +1,37 @@
-// backend/src/routes/upload.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
 const auth = require('../middleware/auth');
 
-// Configura o Multer para armazenar o arquivo em memória
+// Configura o Multer para usar armazenamento em memória (sem mudanças aqui)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // ROTA: POST /api/upload
-// Recebe um arquivo de imagem e o envia para o Cloudinary
 router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhum arquivo de imagem enviado.' });
     }
 
-    // O Multer nos dá o arquivo como um buffer. O Cloudinary sabe como lidar com isso.
-    // Usamos um "stream" para enviar o arquivo para o Cloudinary.
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { resource_type: 'image', folder: 'marketplace' }, // Salva na pasta 'marketplace'
-      (error, result) => {
-        if (error) {
-          console.error('Erro no upload para o Cloudinary:', error);
-          return res.status(500).json({ error: 'Erro ao fazer upload da imagem.' });
-        }
-        // Retorna a URL segura da imagem que o Cloudinary nos deu
-        res.status(201).json({ imageUrl: result.secure_url });
-      }
-    );
+    // Convertendo o buffer do arquivo para uma string base64, que é uma forma robusta de fazer o upload
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
 
-    // Envia o buffer do arquivo para o stream
-    uploadStream.end(req.file.buffer);
+    // Fazendo o upload para o Cloudinary usando a string dataURI
+    const result = await cloudinary.uploader.upload(dataURI, {
+      resource_type: 'image',
+      folder: 'marketplace', // Opcional: salva na pasta 'marketplace' no Cloudinary
+    });
+
+    // Retorna a URL segura da imagem que o Cloudinary nos deu
+    res.status(201).json({ imageUrl: result.secure_url });
 
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erro no Servidor');
+    // Log do erro detalhado no servidor para depuração
+    console.error('ERRO NO UPLOAD:', err);
+    res.status(500).json({ error: 'Erro interno ao processar o upload da imagem.' });
   }
 });
 
