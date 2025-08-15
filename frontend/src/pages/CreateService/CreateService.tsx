@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+import apiUrl from '../../apiConfig';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../contexts/AuthContext';
 import { ServiceContext, Category } from '../../contexts/ServiceContext';
-// 1. Importar nosso componente Modal
 import Modal from '../../components/Modal/Modal';
 import styles from './CreateService.module.css';
 
@@ -25,11 +26,9 @@ const CreateService = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [category, setCategory] = useState<Category>(availableCategories[0]);
   const [formError, setFormError] = useState('');
-
-  // 2. NOVO ESTADO para controlar o modal de confirmação
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // ... useEffects (sem alterações) ...
   useEffect(() => {
     if (isEditMode && services.length > 0) {
       const serviceToEdit = services.find(service => service.id === Number(id));
@@ -59,39 +58,54 @@ const CreateService = () => {
     }
   };
 
-  // 3. ATUALIZAR handleSubmit: agora ele apenas abre o modal
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
-
-    if (!title || !description || !price || !category || (!isEditMode && !imageFile)) {
+    if (!title || !description || !price || !category) {
       setFormError('Todos os campos são obrigatórios.');
       return;
     }
-    
-    // Abre o modal de confirmação em vez de submeter diretamente
+    if (!isEditMode && !imageFile) {
+      setFormError('A imagem do serviço é obrigatória.');
+      return;
+    }
     setIsConfirmModalOpen(true);
   };
 
-  // 4. NOVA FUNÇÃO: a lógica de criação/edição foi movida para cá
-  const handleConfirmSubmit = () => {
-    if (!user) { return; }
+  const handleConfirmSubmit = async () => {
+    if (!user) return;
+    setIsUploading(true);
+    let finalImageUrl = imagePreview;
 
-    if (isEditMode) {
-      updateService(Number(id), { title, description, price: Number(price), category, imageUrl: imagePreview || '' });
-      toast.success('Serviço atualizado com sucesso!');
-      navigate('/profile');
-    } else {
-      addService({ title, description, price: Number(price) }, user.name, category, imagePreview);
-      toast.success('Serviço publicado com sucesso!');
-      navigate('/services');
+    try {
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        const res = await axios.post(`${apiUrl}/upload`, formData);
+        finalImageUrl = res.data.imageUrl;
+      }
+
+      if (isEditMode) {
+        await updateService(Number(id), { title, description, price: Number(price), category, imageUrl: finalImageUrl, seller: { name: user.name } });
+        toast.success('Serviço atualizado com sucesso!');
+        navigate('/profile');
+      } else {
+        await addService({ title, description, price: Number(price) }, user.name, category, finalImageUrl);
+        toast.success('Serviço publicado com sucesso!');
+        navigate('/services');
+      }
+    } catch (err) {
+      console.error("Erro no processo de submissão:", err);
+      toast.error("Ocorreu um erro. Tente novamente.");
+    } finally {
+      setIsUploading(false);
+      setIsConfirmModalOpen(false);
     }
-    // Fecha o modal após a ação
-    setIsConfirmModalOpen(false);
   };
 
-
-  if (isAuthLoading || !user) { /* ... */ }
+  if (isAuthLoading || !user) {
+    return <div className={styles.loadingContainer}><p>Verificando autorização...</p></div>;
+  }
 
   return (
     <>
@@ -99,7 +113,6 @@ const CreateService = () => {
         <div className={styles.formContainer}>
           <h1 className={styles.title}>{isEditMode ? 'Editar Serviço' : 'Criar um Novo Serviço'}</h1>
           <form onSubmit={handleSubmit} className={styles.form}>
-            {/* O formulário continua o mesmo */}
             <div className={styles.formGroup}>
               <label htmlFor="title" className={styles.label}>Título do Serviço</label>
               <input id="title" type="text" className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -112,7 +125,11 @@ const CreateService = () => {
               <label htmlFor="image" className={styles.label}>Imagem do Serviço</label>
               <input type="file" id="image" accept="image/png, image/jpeg" className={styles.fileInput} onChange={handleImageChange} />
             </div>
-            {imagePreview && <div className={styles.imagePreviewContainer}><img src={imagePreview} alt="Pré-visualização" className={styles.imagePreview} /></div>}
+            {imagePreview && (
+              <div className={styles.imagePreviewContainer}>
+                <img src={imagePreview} alt="Pré-visualização" className={styles.imagePreview} />
+              </div>
+            )}
             <div className={styles.formGroup}>
               <label htmlFor="category" className={styles.label}>Categoria</label>
               <select id="category" className={styles.select} value={category} onChange={(e) => setCategory(e.target.value as Category)}>
@@ -125,34 +142,29 @@ const CreateService = () => {
             </div>
             {formError && <p className={styles.error}>{formError}</p>}
             <button type="submit" className={styles.submitButton}>
-              {isEditMode ? 'Salvar Alterações' : 'Revisar e Publicar'}
+              {isEditMode ? 'Revisar Alterações' : 'Revisar e Publicar'}
             </button>
           </form>
         </div>
       </div>
 
-      {/* 5. RENDERIZAR o modal de confirmação */}
-      <Modal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        title={isEditMode ? 'Confirmar Alterações' : 'Revisar seu Serviço'}
-      >
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title={isEditMode ? 'Confirmar Alterações' : 'Revisar seu Serviço'}>
         <div className={styles.modalBodyContent}>
-          <p>Por favor, confirme os detalhes do seu serviço antes de publicar.</p>
+          <p>Por favor, confirme os detalhes do seu serviço.</p>
           <div className={styles.summary}>
             {imagePreview && <img src={imagePreview} alt="Pré-visualização" className={styles.summaryImage} />}
             <div className={styles.summaryDetails}>
               <h4>{title || "Seu título aqui"}</h4>
               <p><strong>Categoria:</strong> {category}</p>
-              <p><strong>Preço:</strong> {Number(price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+              <p><strong>Preço:</strong> {Number(price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
             </div>
           </div>
           <div className={styles.modalActions}>
-            <button onClick={() => setIsConfirmModalOpen(false)} className={styles.cancelButton}>
+            <button onClick={() => setIsConfirmModalOpen(false)} className={styles.cancelButton} disabled={isUploading}>
               Voltar e Editar
             </button>
-            <button onClick={handleConfirmSubmit} className={styles.confirmSubmitButton}>
-              {isEditMode ? 'Confirmar e Salvar' : 'Publicar Serviço'}
+            <button onClick={handleConfirmSubmit} className={styles.confirmSubmitButton} disabled={isUploading}>
+              {isUploading ? 'Enviando...' : (isEditMode ? 'Confirmar e Salvar' : 'Publicar Serviço')}
             </button>
           </div>
         </div>

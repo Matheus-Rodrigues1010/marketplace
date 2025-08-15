@@ -3,22 +3,22 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 
+// Importar as rotas existentes
 const userRoutes = require('./routes/users');
 const serviceRoutes = require('./routes/services');
 const orderRoutes = require('./routes/orders');
+// 1. Importar a nova rota de upload
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 
 // --- CONFIGURAÇÃO DO CORS ---
-// Lista de domínios que têm permissão para acessar sua API
 const whitelist = [
-  'http://localhost:5173', // Seu frontend em desenvolvimento
-  'https://marketplace-ashen-delta.vercel.app' // SEU FRONTEND EM PRODUÇÃO (SUBSTITUA SE FOR DIFERENTE)
+  'http://localhost:5173',
+  'https://marketplace-ashen-delta.vercel.app' // Verifique se esta é sua URL correta
 ];
-
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permite requisições sem 'origin' (como apps mobile ou Postman)
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -26,10 +26,8 @@ const corsOptions = {
     }
   }
 };
-
-app.use(cors(corsOptions)); // Usa as opções de CORS configuradas
+app.use(cors(corsOptions));
 // --- FIM DA CONFIGURAÇÃO DO CORS ---
-
 
 app.use(express.json());
 
@@ -39,9 +37,12 @@ app.get('/', (req, res) => {
   res.json({ message: 'API do Marketplace está funcionando!' });
 });
 
+// Usar as rotas
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
+// 2. Usar a nova rota de upload
+app.use('/api/upload', uploadRoutes);
 
 app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
