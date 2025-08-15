@@ -4,7 +4,20 @@ const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
 const auth = require('../middleware/auth');
 
-// Configura o Multer para usar armazenamento em memória (sem mudanças aqui)
+// LOG DE DEPURAÇÃO:
+// Este log será impresso nos logs do Render toda vez que uma requisição chegar a esta rota.
+// Ele nos dirá se a variável de ambiente está sendo lida corretamente pelo processo.
+console.log(
+  'Verificando variáveis de ambiente no arquivo upload.js:', 
+  {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'Encontrada' : 'NÃO ENCONTRADA',
+    api_key: process.env.CLOUDINARY_API_KEY ? 'Encontrada' : 'NÃO ENCONTRADA',
+    api_secret: process.env.CLOUDINARY_API_SECRET ? 'Encontrada' : 'NÃO ENCONTRADA'
+  }
+);
+
+
+// Configura o Multer para usar armazenamento em memória
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -15,17 +28,17 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'Nenhum arquivo de imagem enviado.' });
     }
 
-    // Convertendo o buffer do arquivo para uma string base64, que é uma forma robusta de fazer o upload
+    // Convertendo o buffer do arquivo para uma string base64
     const b64 = Buffer.from(req.file.buffer).toString("base64");
     let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
 
-    // Fazendo o upload para o Cloudinary usando a string dataURI
+    // Fazendo o upload para o Cloudinary
     const result = await cloudinary.uploader.upload(dataURI, {
       resource_type: 'image',
-      folder: 'marketplace', // Opcional: salva na pasta 'marketplace' no Cloudinary
+      folder: 'marketplace',
     });
 
-    // Retorna a URL segura da imagem que o Cloudinary nos deu
+    // Retorna a URL segura da imagem
     res.status(201).json({ imageUrl: result.secure_url });
 
   } catch (err) {
