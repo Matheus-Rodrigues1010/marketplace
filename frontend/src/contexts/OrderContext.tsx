@@ -1,9 +1,10 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useCallback } from 'react';
 import axios from 'axios';
 import apiUrl from '../apiConfig';
 import { toast } from 'react-toastify';
 import { IService } from './ServiceContext'; 
 
+// Interface para um Pedido (conforme a resposta da API)
 export interface IOrder {
   order_id: number;
   service_title: string;
@@ -13,6 +14,7 @@ export interface IOrder {
   service_image_url: string;
 }
 
+// Interface do Contexto
 interface IOrderContext {
   orders: IOrder[];
   loading: boolean;
@@ -35,18 +37,19 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchOrders = async () => {
+  // Usamos useCallback para memorizar a função e evitar o loop infinito.
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${apiUrl}/orders/my-orders`);
       setOrders(res.data);
     } catch (err) {
       console.error("Erro ao buscar pedidos:", err);
-      toast.error("Não foi possível carregar seus pedidos.");
+      // Não mostramos toast aqui para não poluir a tela se houver um loop
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Array de dependências vazio significa que a função nunca será recriada
 
   const addOrder = async (service: IService, buyerId: number) => {
     const body = { serviceId: service.id };
