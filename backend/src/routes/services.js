@@ -3,11 +3,20 @@ const router = express.Router();
 const db = require('../db');
 const auth = require('../middleware/auth');
 
-// --- ROTA PÚBLICA: Listar todos os serviços ---
-// GET /api/services
+// --- ROTA PÚBLICA: Listar todos os serviços (COM NOME DO VENDEDOR) ---
+// ROTA: GET /api/services
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM services WHERE is_active = true ORDER BY created_at DESC');
+    // ATUALIZAÇÃO: Adicionamos um JOIN com a tabela 'users' para buscar o nome do vendedor
+    const { rows } = await db.query(
+      `SELECT 
+         s.id, s.title, s.description, s.price, s.category, s.image_url, s.created_at, s.seller_id,
+         u.full_name AS seller_name 
+       FROM services s
+       JOIN users u ON s.seller_id = u.id
+       WHERE s.is_active = true 
+       ORDER BY s.created_at DESC`
+    );
     res.json(rows);
   } catch (err) {
     console.error(err.message);
@@ -16,8 +25,9 @@ router.get('/', async (req, res) => {
 });
 
 // --- ROTA PROTEGIDA: Criar um novo serviço ---
-// POST /api/services
+// ROTA: POST /api/services
 router.post('/', auth, async (req, res) => {
+  // A chave no frontend é 'imageUrl', mas no banco é 'image_url'
   const { title, description, price, category, imageUrl } = req.body;
   const sellerId = req.user.id;
   if (!title || !description || !price || !category || !imageUrl) {
@@ -35,7 +45,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// --- NOVA ROTA PROTEGIDA: Atualizar um serviço ---
+// --- ROTA PROTEGIDA: Atualizar um serviço ---
 // ROTA: PUT /api/services/:id
 router.put('/:id', auth, async (req, res) => {
   try {
@@ -43,7 +53,6 @@ router.put('/:id', auth, async (req, res) => {
     const serviceId = req.params.id;
     const userId = req.user.id;
 
-    // 1. Verificar se o serviço existe e se pertence ao usuário logado
     const service = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
     if (service.rows.length === 0) {
       return res.status(404).json({ msg: 'Serviço não encontrado.' });
@@ -52,7 +61,6 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'Não autorizado. Você não é o dono deste serviço.' });
     }
 
-    // 2. Atualizar o serviço no banco de dados
     const { rows } = await db.query(
       `UPDATE services 
        SET title = $1, description = $2, price = $3, category = $4, image_url = $5, updated_at = NOW() 
@@ -68,14 +76,13 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 
-// --- NOVA ROTA PROTEGIDA: Excluir um serviço ---
+// --- ROTA PROTEGIDA: Excluir um serviço ---
 // ROTA: DELETE /api/services/:id
 router.delete('/:id', auth, async (req, res) => {
   try {
     const serviceId = req.params.id;
     const userId = req.user.id;
 
-    // 1. Verificar se o serviço existe e se pertence ao usuário logado
     const service = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
     if (service.rows.length === 0) {
       return res.status(404).json({ msg: 'Serviço não encontrado.' });
@@ -84,7 +91,6 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ msg: 'Não autorizado. Você não é o dono deste serviço.' });
     }
     
-    // 2. Excluir o serviço do banco de dados
     await db.query('DELETE FROM services WHERE id = $1', [serviceId]);
 
     res.json({ msg: 'Serviço excluído com sucesso.' });
