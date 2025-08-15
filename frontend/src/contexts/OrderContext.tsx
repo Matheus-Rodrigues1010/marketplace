@@ -1,54 +1,70 @@
 import React, { createContext, useState, ReactNode } from 'react';
-// Importamos a interface IService para poder reutilizá-la
+import axios from 'axios';
+import apiUrl from '../apiConfig';
+import { toast } from 'react-toastify';
 import { IService } from './ServiceContext'; 
 
-// --- 1. Definindo os Tipos ---
-
-// Um pedido é o serviço em si, mais a informação de quem comprou e quando.
+// Interface para um Pedido
 export interface IOrder {
-  orderId: number; // ID único para o pedido
-  service: IService; // O serviço que foi comprado
-  buyerId: number; // ID do usuário que comprou
-  orderDate: string; // Data da compra
+  orderId: number;
+  service: IService;
+  buyerId: number;
+  orderDate: string;
 }
 
-// O que nosso contexto de pedidos vai fornecer
+// Interface do Contexto
 interface IOrderContext {
-  orders: IOrder[];
-  addOrder: (service: IService, buyerId: number) => void;
+  orders: IOrder[]; // Manteremos a lista para a página /my-orders
+  loading: boolean;
+  fetchOrders: () => Promise<void>; // Função para buscar os pedidos
+  addOrder: (service: IService, buyerId: number) => Promise<void>;
 }
 
-// --- 2. Criando o Contexto ---
 export const OrderContext = createContext<IOrderContext>({
   orders: [],
-  addOrder: () => {},
+  loading: false,
+  fetchOrders: async () => {},
+  addOrder: async () => {},
 });
-
-// --- 3. Criando o Provedor ---
 
 interface OrderProviderProps {
   children: ReactNode;
 }
 
 export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
-  // O estado que vai guardar a lista de todos os pedidos. Começa vazio.
   const [orders, setOrders] = useState<IOrder[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // A função para adicionar um novo pedido (simular uma compra)
-  const addOrder = (service: IService, buyerId: number) => {
-    const newOrder: IOrder = {
-      orderId: Date.now(), // ID único para o pedido
-      service: service, // O objeto completo do serviço
-      buyerId: buyerId,
-      orderDate: new Date().toISOString(), // Data atual no formato padrão
-    };
+  // Função para buscar os pedidos do usuário logado
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${apiUrl}/orders/my-orders`);
+      setOrders(res.data);
+    } catch (err) {
+      console.error("Erro ao buscar pedidos:", err);
+      toast.error("Não foi possível carregar seus pedidos.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Adicionamos o novo pedido à lista de pedidos existentes
-    setOrders(prevOrders => [...prevOrders, newOrder]);
+  // Função para criar um novo pedido (contratar serviço)
+  const addOrder = async (service: IService, buyerId: number) => {
+    const body = { serviceId: service.id };
+    try {
+      // Faz a chamada POST para a API
+      await axios.post(`${apiUrl}/orders`, body);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Erro ao contratar serviço.");
+      throw err; // Lança o erro para o componente poder lidar com ele
+    }
   };
 
   const contextValue = {
     orders,
+    loading,
+    fetchOrders,
     addOrder,
   };
 

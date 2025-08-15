@@ -1,12 +1,14 @@
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
+// Importamos a função de busca do OrderContext
 import { OrderContext } from '../../contexts/OrderContext';
 import styles from './MyOrders.module.css';
 
 const MyOrders = () => {
   const { user, isLoading: isAuthLoading } = useContext(AuthContext);
-  const { orders } = useContext(OrderContext);
+  // Pegamos os pedidos, o estado de loading e a função de busca
+  const { orders, loading: ordersLoading, fetchOrders } = useContext(OrderContext);
   const navigate = useNavigate();
 
   // Proteção de rota
@@ -17,19 +19,16 @@ const MyOrders = () => {
     }
   }, [user, isAuthLoading, navigate]);
 
-  // Filtrar os pedidos para este usuário
-  const userOrders = user 
-    ? orders.filter(order => order.buyerId === user.id) 
-    : [];
+  // Efeito para buscar os pedidos quando a página carregar
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]); // Adicionamos fetchOrders como dependência
 
-  if (isAuthLoading || !user) {
-    return (
-      <div className={styles.loadingScreen}>
-        Carregando seus pedidos...
-      </div>
-    );
+  if (isAuthLoading || ordersLoading) {
+    return <div className={styles.loadingScreen}>Carregando seus pedidos...</div>;
   }
 
+  // O JSX de exibição continua o mesmo
   return (
     <div className={styles.container}>
       <header className={styles.pageHeader}>
@@ -38,21 +37,21 @@ const MyOrders = () => {
       </header>
 
       <div className={styles.ordersList}>
-        {userOrders.length > 0 ? (
-          userOrders.map(order => (
-            <div key={order.orderId} className={styles.orderCard}>
-              <img src={order.service.imageUrl} alt={order.service.title} className={styles.serviceImage} />
+        {orders.length > 0 ? (
+          orders.map((order: any) => ( // Usamos 'any' temporariamente para a resposta da API
+            <div key={order.order_id} className={styles.orderCard}>
+              <img src={order.service_image_url} alt={order.service_title} className={styles.serviceImage} />
               <div className={styles.serviceInfo}>
-                <h3 className={styles.serviceTitle}>{order.service.title}</h3>
-                <p className={styles.seller}>Vendido por: {order.service.seller.name}</p>
+                <h3 className={styles.serviceTitle}>{order.service_title}</h3>
+                <p className={styles.seller}>Vendido por: {order.seller_name}</p>
                 <p className={styles.date}>
-                  Contratado em: {new Date(order.orderDate).toLocaleDateString('pt-BR')}
+                  Contratado em: {new Date(order.order_date).toLocaleDateString('pt-BR')}
                 </p>
               </div>
               <div className={styles.priceInfo}>
                 <p className={styles.priceLabel}>Valor pago</p>
                 <p className={styles.price}>
-                  {order.service.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  {Number(order.price_at_purchase).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </p>
               </div>
             </div>
