@@ -4,17 +4,16 @@ const db = require('../db');
 const auth = require('../middleware/auth');
 
 // --- ROTA PROTEGIDA: Criar um novo pedido ---
-// ROTA: POST /api/orders
+// POST /api/orders
 router.post('/', auth, async (req, res) => {
   const { serviceId } = req.body;
-  const buyerId = req.user.id; // ID do comprador vem do token
+  const buyerId = req.user.id;
 
   if (!serviceId) {
     return res.status(400).json({ error: 'O ID do serviço é obrigatório.' });
   }
 
   try {
-    // 1. Buscar o serviço no banco para verificar se ele existe e pegar o preço
     const serviceResult = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
     const service = serviceResult.rows[0];
 
@@ -22,15 +21,13 @@ router.post('/', auth, async (req, res) => {
       return res.status(404).json({ error: 'Serviço não encontrado.' });
     }
 
-    // 2. Impedir que o vendedor compre o próprio serviço
     if (service.seller_id === buyerId) {
       return res.status(403).json({ error: 'Você não pode comprar seu próprio serviço.' });
     }
 
-    // 3. Inserir o novo pedido no banco de dados
     const { rows } = await db.query(
       'INSERT INTO orders (service_id, buyer_id, price_at_purchase, order_status) VALUES ($1, $2, $3, $4) RETURNING *',
-      [serviceId, buyerId, service.price, 'completed'] // Salva o preço atual do serviço
+      [serviceId, buyerId, service.price, 'completed']
     );
 
     res.status(201).json(rows[0]);
@@ -41,20 +38,16 @@ router.post('/', auth, async (req, res) => {
 });
 
 
-// --- ROTA PROTEGIDA: Listar pedidos de um usuário ---
-// ROTA: GET /api/orders/my-orders
+// --- ROTA PROTEGIDA: Listar pedidos de um COMPRADOR ---
+// GET /api/orders/my-orders
 router.get('/my-orders', auth, async (req, res) => {
-  const buyerId = req.user.id; // ID do usuário logado
+  const buyerId = req.user.id;
 
   try {
-    // Vamos fazer um JOIN para buscar os dados do pedido E os dados do serviço relacionado
     const { rows } = await db.query(
       `SELECT
-         o.id AS order_id,
-         o.created_at AS order_date,
-         o.price_at_purchase,
-         s.title AS service_title,
-         s.image_url AS service_image_url,
+         o.id AS order_id, o.created_at AS order_date, o.price_at_purchase,
+         s.title AS service_title, s.image_url AS service_image_url,
          u.full_name AS seller_name
        FROM orders o
        JOIN services s ON o.service_id = s.id
@@ -63,13 +56,44 @@ router.get('/my-orders', auth, async (req, res) => {
        ORDER BY o.created_at DESC`,
       [buyerId]
     );
-
     res.json(rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Erro no Servidor');
   }
 });
+
+
+// --- NOVA ROTA PROTEGIDA: Listar vendas de um VENDEDOR ---
+// ROTA: GET /api/orders/my-sales
+router.get('/my-sales', auth, async (req, res) => {
+    const sellerId = req.user.id; // ID do vendedor logado vem do token
+  
+    try {
+      // Consulta SQL que une as tabelas orders, services, e users (para os dados do comprador)
+      const { rows } = await db.query(
+        `SELECT
+           o.id AS order_id,
+           o.created_at AS order_date,
+           o.price_at_purchase,
+           s.title AS service_title,
+           buyer.full_name AS buyer_name,
+           buyer.email AS buyer_email
+         FROM orders o
+         JOIN services s ON o.service_id = s.id
+         JOIN users seller ON s.seller_id = seller.id
+         JOIN users buyer ON o.buyer_id = buyer.id
+         WHERE s.seller_id = $1
+         ORDER BY o.created_at DESC`,
+        [sellerId]
+      );
+  
+      res.json(rows);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Erro no Servidor');
+    }
+  });
 
 
 module.exports = router;
