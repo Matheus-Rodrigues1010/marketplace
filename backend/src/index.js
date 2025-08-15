@@ -3,26 +3,45 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 
-// Importar as rotas
 const userRoutes = require('./routes/users');
 const serviceRoutes = require('./routes/services');
-const orderRoutes = require('./routes/orders'); // 1. Importar as rotas de pedidos
+const orderRoutes = require('./routes/orders');
 
 const app = express();
-app.use(cors());
+
+// --- CONFIGURAÇÃO DO CORS ---
+// Lista de domínios que têm permissão para acessar sua API
+const whitelist = [
+  'http://localhost:5173', // Seu frontend em desenvolvimento
+  'https://marketplace-ashen-delta.vercel.app' // SEU FRONTEND EM PRODUÇÃO (SUBSTITUA SE FOR DIFERENTE)
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como apps mobile ou Postman)
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions)); // Usa as opções de CORS configuradas
+// --- FIM DA CONFIGURAÇÃO DO CORS ---
+
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// Rota de teste
 app.get('/', (req, res) => {
   res.json({ message: 'API do Marketplace está funcionando!' });
 });
 
-// Usar as rotas
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/orders', orderRoutes); // 2. Usar as rotas de pedidos
+app.use('/api/orders', orderRoutes);
 
 app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
