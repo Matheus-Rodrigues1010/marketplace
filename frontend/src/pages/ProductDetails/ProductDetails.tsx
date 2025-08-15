@@ -23,38 +23,33 @@ const ProductDetails = () => {
     const fetchServiceDetails = async () => {
       try {
         setLoading(true);
-        // FAZ A CHAMADA PARA A NOVA ROTA DE API
         const res = await axios.get(`${apiUrl}/services/${id}`);
-        
-        // Adapta a resposta da API para o formato do frontend
-        const serviceData = {
-          ...res.data,
-          imageUrl: res.data.image_url,
-          seller: { name: res.data.seller_name }
-        };
-
+        const serviceData = { ...res.data, imageUrl: res.data.image_url, seller: { name: res.data.seller_name } };
         setService(serviceData);
-
       } catch (err) {
-        console.error("Erro ao buscar detalhes do serviço:", err);
         setError("Oops! Não encontramos o serviço que você está procurando.");
       } finally {
         setLoading(false);
       }
     };
-    
-    // Só busca se o ID existir
-    if (id) {
-      fetchServiceDetails();
+    if (id) { fetchServiceDetails(); }
+  }, [id]);
+
+  const handleHireClick = async () => {
+    if (!user) { toast.error('Você precisa estar logado para contratar um serviço.'); navigate('/login'); return; }
+    if (!service) { toast.error('Serviço não encontrado.'); return; }
+    if (user.id === service.seller_id) { toast.warn('Você não pode contratar seu próprio serviço.'); return; }
+
+    try {
+      await addOrder(service, user.id);
+      toast.success(`'${service.title}' contratado com sucesso!`);
+      navigate('/my-orders');
+    } catch (err) {
+      console.error("Falha ao processar a contratação no componente:", err);
     }
-  }, [id]); // Roda sempre que o ID na URL mudar
+  };
 
-  const handleHireClick = () => { /* ... sua lógica existente ... */ };
-
-  if (loading) {
-    return <div className={styles.feedbackScreen}>Carregando...</div>;
-  }
-
+  if (loading) { return <div className={styles.feedbackScreen}>Carregando...</div>; }
   if (error || !service) {
     return (
       <div className={styles.feedbackScreen}>
@@ -67,24 +62,18 @@ const ProductDetails = () => {
   return (
     <div className={styles.pageContainer}>
       <div className={styles.detailsCard}>
-        <div className={styles.imageContainer}>
-          <img src={service.imageUrl} alt={service.title} />
-        </div>
+        <div className={styles.imageContainer}><img src={service.imageUrl} alt={service.title} /></div>
         <div className={styles.infoContainer}>
           <h1 className={styles.title}>{service.title}</h1>
           <p className={styles.seller}>Oferecido por: {service.seller.name}</p>
           <p className={styles.description}>{service.description}</p>
-          <div className={styles.price}>
-            {Number(service.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <button onClick={handleHireClick} className={styles.hireButton}>
-            Contratar Serviço
-          </button>
+          <div className={styles.price}>{Number(service.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+          <button onClick={handleHireClick} className={styles.hireButton}>Contratar Serviço</button>
         </div>
       </div>
       <div className={styles.reviewsContainer}>
         <h2 className={styles.reviewsTitle}>Avaliações dos Clientes</h2>
-        {/* ... */}
+        <div className={styles.reviewItem}><h3 className={styles.reviewAuthor}>Cliente 1</h3><p className={styles.reviewText}>Ótimo! Atendeu todas as minhas expectativas.</p></div>
       </div>
     </div>
   );
