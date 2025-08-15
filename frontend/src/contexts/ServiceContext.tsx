@@ -3,18 +3,17 @@ import axios from 'axios';
 import apiUrl from '../apiConfig';
 import { toast } from 'react-toastify';
 
-// Tipos e Interfaces
 export type Category = 'Companhia' | 'Habilidades' | 'Aulas' | 'Bem-Estar';
 
-// Usaremos 'imageUrl' como padrão em todo o frontend
 export interface IService {
   id: number;
   title: string;
   description: string;
   price: number;
   seller: { name: string; };
-  imageUrl: string; // PADRÃO DO FRONTEND
+  imageUrl: string;
   category: Category;
+  seller_id?: number;
 }
 
 interface IServiceContext {
@@ -33,16 +32,7 @@ export const ServiceContext = createContext<IServiceContext>({
   updateService: async () => {},
 });
 
-// --- DADOS DE EXEMPLO (FALLBACK) COM A CHAVE 'imageUrl' CORRIGIDA ---
-const initialServices: IService[] = [
-    { id: 1, title: '1h de caminhada no parque', description: 'Uma hora de caminhada relaxante...', price: 50, seller: { name: 'Carlos' }, imageUrl: '/images/caminhada.jpg', category: 'Bem-Estar' },
-    { id: 2, title: 'Retrato a lápis', description: 'Faço um retrato realista...', price: 120, seller: { name: 'Juliana' }, imageUrl: '/images/retrato.jpg', category: 'Habilidades' },
-    { id: 3, title: 'Meia hora de conversa empática', description: 'Um ombro amigo para desabafar...', price: 30, seller: { name: 'Beatriz' }, imageUrl: '/images/conversa.jpg', category: 'Companhia' },
-    { id: 4, title: 'Aula de violão para iniciantes', description: 'Aprenda os primeiros acordes...', price: 75, seller: { name: 'Ricardo' }, imageUrl: '/images/violao.jpeg', category: 'Aulas' },
-    { id: 5, title: 'Consultoria de organização de armário', description: 'Ajudo você a organizar seu guarda-roupa...', price: 150, seller: { name: 'Mariana' }, imageUrl: '/images/armario.jpg', category: 'Habilidades' },
-    { id: 6, title: 'Companhia para um café', description: 'Ofereço uma companhia agradável...', price: 40, seller: { name: 'Lucas' }, imageUrl: '/images/cafe.jpeg', category: 'Companhia' },
-    { id: 7, title: 'Sessão de meditação guiada online', description: 'Uma sessão de 30 minutos de meditação...', price: 60, seller: { name: 'Sofia' }, imageUrl: '/images/meditacao.jpg', category: 'Bem-Estar' }
-];
+// A LISTA DE SERVIÇOS FIXOS FOI COMPLETAMENTE REMOVIDA
 
 interface ServiceProviderProps {
   children: ReactNode;
@@ -52,26 +42,24 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
   const [services, setServices] = useState<IService[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // O useEffect agora confia 100% na API
   useEffect(() => {
     const fetchServices = async () => {
       try {
         setLoading(true);
         const res = await axios.get(`${apiUrl}/services`);
         
-        if (res.data && res.data.length > 0) {
-          // ADAPTAÇÃO: Converte a resposta do backend para o formato do frontend
-          const adaptedServices = res.data.map((service: any) => ({
-            ...service,
-            imageUrl: service.image_url, // Converte 'image_url' para 'imageUrl'
-            seller: { name: `Vendedor #${service.seller_id}` }
-          }));
-          setServices(adaptedServices);
-        } else {
-          setServices(initialServices);
-        }
+        // Adapta a resposta do backend para o formato do frontend
+        const adaptedServices = res.data.map((service: any) => ({
+          ...service,
+          imageUrl: service.image_url,
+          seller: { name: `Vendedor #${service.seller_id}` } // Placeholder
+        }));
+        setServices(adaptedServices);
+        
       } catch (err) {
-        console.error("Erro ao buscar serviços, usando dados de fallback:", err);
-        setServices(initialServices);
+        console.error("Erro ao buscar serviços:", err);
+        toast.error("Não foi possível carregar os serviços.");
       } finally {
         setLoading(false);
       }
@@ -79,14 +67,13 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
     fetchServices();
   }, []);
 
-  // --- FUNÇÕES CONECTADAS À API ---
   const addService = async (serviceData: any, sellerName: string, category: Category, imageUrl: string | null) => {
     const body = { ...serviceData, category, imageUrl: imageUrl };
     try {
       const res = await axios.post(`${apiUrl}/services`, body);
-      // Adapta a resposta da API antes de adicionar ao estado
       const newServiceFromAPI = { ...res.data, imageUrl: res.data.image_url, seller: { name: sellerName } };
-      setServices(prev => [...prev.filter(s => s.id > 7), newServiceFromAPI]);
+      // Agora, simplesmente adicionamos o novo serviço à lista existente
+      setServices(prev => [...prev, newServiceFromAPI]);
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Erro ao criar serviço.");
       throw err;
@@ -108,7 +95,6 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({ children }) =>
     const body = { ...updatedData, imageUrl: updatedData.imageUrl };
     try {
       const res = await axios.put(`${apiUrl}/services/${serviceId}`, body);
-      // Adapta a resposta da API antes de atualizar o estado
       const updatedServiceFromAPI = { ...res.data, imageUrl: res.data.image_url, seller: { name: updatedData.seller?.name || "Vendedor" }};
       setServices(prev => prev.map(service => service.id === serviceId ? updatedServiceFromAPI : service));
     } catch (err: any) {
