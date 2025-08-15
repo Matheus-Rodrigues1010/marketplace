@@ -76,6 +76,32 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 
+router.get('/:id', async (req, res) => {
+  try {
+    const serviceId = req.params.id;
+    // Fazemos o JOIN para também pegar o nome do vendedor
+    const { rows } = await db.query(
+      `SELECT 
+         s.id, s.title, s.description, s.price, s.category, s.image_url, s.created_at,
+         u.full_name AS seller_name 
+       FROM services s
+       JOIN users u ON s.seller_id = u.id
+       WHERE s.id = $1 AND s.is_active = true`,
+      [serviceId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ msg: 'Serviço não encontrado.' });
+    }
+
+    res.json(rows[0]); // Retorna o único serviço encontrado
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erro no Servidor');
+  }
+});
+
+
 // --- ROTA PROTEGIDA: Excluir um serviço ---
 // ROTA: DELETE /api/services/:id
 router.delete('/:id', auth, async (req, res) => {
