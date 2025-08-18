@@ -53,6 +53,10 @@ router.put('/:id', auth, async (req, res) => {
     const serviceId = req.params.id;
     const userId = req.user.id;
 
+    if (service.rows[0].seller_id !== parseInt(userId, 10)) { // Usa parseInt para garantir a comparação de números
+      return res.status(401).json({ msg: 'Não autorizado.' });
+    }
+
     const service = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
     if (service.rows.length === 0) {
       return res.status(404).json({ msg: 'Serviço não encontrado.' });

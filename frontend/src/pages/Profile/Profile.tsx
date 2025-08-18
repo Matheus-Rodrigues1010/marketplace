@@ -6,8 +6,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { ServiceContext, IService } from '../../contexts/ServiceContext';
 import { toast } from 'react-toastify';
 import Modal from '../../components/Modal/Modal';
-// --- CORREÇÃO APLICADA AQUI ---
-import styles from './Profile.module.css'; // Importa o CSS correto
+import styles from './Profile.module.css';
 
 interface ISale {
   order_id: number;
@@ -54,32 +53,20 @@ const Profile = () => {
     }
   }, [token, user]);
 
-  const openDeleteModal = (service: IService) => {
-    setServiceToDelete(service);
-    setIsModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setIsModalOpen(false);
-    setServiceToDelete(null);
-  };
-
+  const openDeleteModal = (service: IService) => { setServiceToDelete(service); setIsModalOpen(true); };
+  const closeDeleteModal = () => { setIsModalOpen(false); setServiceToDelete(null); };
   const confirmDeleteService = async () => {
     if (serviceToDelete) {
       try {
         await deleteService(serviceToDelete.id);
         toast.info(`Serviço "${serviceToDelete.title}" foi excluído.`);
         closeDeleteModal();
-      } catch (err) {
-        closeDeleteModal();
-      }
+      } catch (err) { closeDeleteModal(); }
     }
   };
+  const handleLogout = () => { logout(); };
 
-  const handleLogout = () => {
-    logout();
-  };
-
+  // LÓGICA DE FILTRAGEM SIMPLIFICADA E CORRIGIDA
   const userServices = user 
     ? services.filter(service => service.seller_id === user.id) 
     : [];
