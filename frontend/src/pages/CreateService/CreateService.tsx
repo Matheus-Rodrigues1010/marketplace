@@ -15,10 +15,9 @@ const CreateService = () => {
   const isEditMode = Boolean(id);
 
   const { user, isLoading: isAuthLoading } = useContext(AuthContext);
-  const { services, addService, updateService } = useContext(ServiceContext);
+  const { addService, updateService } = useContext(ServiceContext);
   const navigate = useNavigate();
 
-  // Estados do formulário
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -28,22 +27,38 @@ const CreateService = () => {
   const [formError, setFormError] = useState('');
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(isEditMode); // Inicia carregando apenas no modo de edição
 
   useEffect(() => {
-    if (isEditMode && services.length > 0) {
-      const serviceToEdit = services.find(service => service.id === Number(id));
-      if (serviceToEdit) {
-        setTitle(serviceToEdit.title);
-        setDescription(serviceToEdit.description);
-        setPrice(String(serviceToEdit.price));
-        setCategory(serviceToEdit.category);
-        setImagePreview(serviceToEdit.imageUrl);
-      } else {
-        toast.error('Serviço não encontrado!');
-        navigate('/profile');
+    const fetchServiceToEdit = async () => {
+      // Busca os dados apenas se estiver no modo de edição
+      if (isEditMode) {
+        try {
+          // Faz a chamada direta para a API para buscar o serviço específico
+          const res = await axios.get(`${apiUrl}/services/${id}`);
+          const serviceToEdit = res.data;
+          
+          if (serviceToEdit) {
+            // Preenche os campos do formulário com os dados da API
+            setTitle(serviceToEdit.title);
+            setDescription(serviceToEdit.description);
+            setPrice(String(serviceToEdit.price));
+            setCategory(serviceToEdit.category);
+            setImagePreview(serviceToEdit.image_url); // 'image_url' é o que o backend envia
+          } else {
+            throw new Error('Serviço não encontrado na API');
+          }
+        } catch (err) {
+          toast.error('Não foi possível carregar o serviço para edição.');
+          navigate('/profile');
+        } finally {
+          setIsLoadingData(false);
+        }
       }
-    }
-  }, [id, isEditMode, services, navigate]);
+    };
+
+    fetchServiceToEdit();
+  }, [id, isEditMode, navigate]);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -103,7 +118,11 @@ const CreateService = () => {
     }
   };
 
-  if (isAuthLoading || !user) {
+  // Condição de loading aprimorada
+  if (isAuthLoading || isLoadingData) {
+    return <div className={styles.loadingContainer}><p>Carregando...</p></div>;
+  }
+  if (!user) {
     return <div className={styles.loadingContainer}><p>Verificando autorização...</p></div>;
   }
 
