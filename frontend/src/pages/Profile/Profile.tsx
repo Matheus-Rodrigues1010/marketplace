@@ -1,139 +1,189 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import apiUrl from '../../apiConfig';
-import { AuthContext } from '../../contexts/AuthContext';
-import { ServiceContext, IService } from '../../contexts/ServiceContext';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../contexts/AuthContext';
+import { ServiceContext, Category } from '../../contexts/ServiceContext';
 import Modal from '../../components/Modal/Modal';
-import styles from './Profile.module.css';
+import styles from './CreateService.module.css';
 
-interface ISale {
-  order_id: number;
-  order_date: string;
-  price_at_purchase: string;
-  service_title: string;
-  buyer_name: string;
-  buyer_email: string;
-}
+const availableCategories: Category[] = ['Habilidades', 'Companhia', 'Aulas', 'Bem-Estar'];
 
-const Profile = () => {
-  const { user, logout, isLoading: isAuthLoading, token } = useContext(AuthContext);
-  const { services, deleteService, loading: servicesLoading } = useContext(ServiceContext);
+const CreateService = () => {
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = Boolean(id);
+
+  const { user, isLoading: isAuthLoading } = useContext(AuthContext);
+  const { addService, updateService } = useContext(ServiceContext);
   const navigate = useNavigate();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [serviceToDelete, setServiceToDelete] = useState<IService | null>(null);
-  const [sales, setSales] = useState<ISale[]>([]);
-  const [isLoadingSales, setIsLoadingSales] = useState(true);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [category, setCategory] = useState<Category>(availableCategories[0]);
+  const [formError, setFormError] = useState('');
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  useEffect(() => {
+    const fetchServiceToEdit = async () => {
+      if (isEditMode) {
+        try {
+          setIsLoadingData(true);
+          const res = await axios.get(`${apiUrl}/services/${id}`);
+          const serviceToEdit = res.data;
+          
+          if (serviceToEdit) {
+            setTitle(serviceToEdit.title);
+            setDescription(serviceToEdit.description);
+            setPrice(String(serviceToEdit.price));
+            setCategory(serviceToEdit.category);
+            setImagePreview(serviceToEdit.image_url);
+          } else {
+            throw new Error('Serviço não encontrado na API');
+          }
+        } catch (err) {
+          toast.error('Serviço não encontrado!');
+          navigate('/profile');
+        } finally {
+          setIsLoadingData(false);
+        }
+      } else {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchServiceToEdit();
+  }, [id, isEditMode, navigate]);
 
   useEffect(() => {
     if (isAuthLoading) return;
-    if (!user) {
-      navigate('/login');
-    }
+    if (!user) { navigate('/login'); }
   }, [user, isAuthLoading, navigate]);
 
-  useEffect(() => {
-    const fetchSales = async () => {
-      if (token) {
-        try {
-          setIsLoadingSales(true);
-          const res = await axios.get(`${apiUrl}/orders/my-sales`);
-          setSales(res.data);
-        } catch (err) {
-          toast.error("Não foi possível carregar suas vendas.");
-        } finally {
-          setIsLoadingSales(false);
-        }
-      }
-    };
-    if (user) {
-      fetchSales();
-    }
-  }, [token, user]);
-
-  const openDeleteModal = (service: IService) => { setServiceToDelete(service); setIsModalOpen(true); };
-  const closeDeleteModal = () => { setIsModalOpen(false); setServiceToDelete(null); };
-  const confirmDeleteService = async () => {
-    if (serviceToDelete) {
-      try {
-        await deleteService(serviceToDelete.id);
-        toast.info(`Serviço "${serviceToDelete.title}" foi excluído.`);
-        closeDeleteModal();
-      } catch (err) { closeDeleteModal(); }
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
-  const handleLogout = () => { logout(); };
 
-  // LÓGICA DE FILTRAGEM SIMPLIFICADA E CORRIGIDA
-  const userServices = user 
-    ? services.filter(service => service.seller_id === user.id) 
-    : [];
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    if (!title || !description || !price || !category) {
+      setFormError('Todos os campos são obrigatórios.');
+      return;
+    }
+    if (!isEditMode && !imageFile) {
+      setFormError('A imagem do serviço é obrigatória.');
+      return;
+    }
+    setIsConfirmModalOpen(true);
+  };
 
-  if (isAuthLoading || !user || servicesLoading) {
-    return <div className={styles.loading}>Carregando perfil...</div>;
+  const handleConfirmSubmit = async () => {
+    if (!user) return;
+    setIsUploading(true);
+    let finalImageUrl = imagePreview;
+
+    try {
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        const res = await axios.post(`${apiUrl}/upload`, formData);
+        finalImageUrl = res.data.imageUrl;
+      }
+
+      if (isEditMode) {
+        await updateService(Number(id), { title, description, price: Number(price), category, imageUrl: finalImageUrl, seller: { name: user.name } });
+        toast.success('Serviço atualizado com sucesso!');
+        navigate('/profile');
+      } else {
+        await addService({ title, description, price: Number(price) }, user.name, category, finalImageUrl);
+        toast.success('Serviço publicado com sucesso!');
+        navigate('/services');
+      }
+    } catch (err) {
+      console.error("Erro no processo de submissão:", err);
+      toast.error("Ocorreu um erro. Tente novamente.");
+    } finally {
+      setIsUploading(false);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  if (isAuthLoading || isLoadingData) {
+    return <div className={styles.loadingContainer}><p>Carregando...</p></div>;
+  }
+  if (!user) {
+    return <div className={styles.loadingContainer}><p>Verificando autorização...</p></div>;
   }
 
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.profileCard}>
-          <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&size=128`}
-            alt={`Avatar de ${user.name}`}
-            className={styles.avatar}
-          />
-          <h2 className={styles.name}>{user.name}</h2>
-          <p className={styles.email}>{user.email}</p>
-          <button onClick={handleLogout} className={styles.logoutButton}>Sair (Logout)</button>
-        </div>
-
-        <div className={styles.servicesSection}>
-          <h3 className={styles.sectionTitle}>Meus Serviços Publicados</h3>
-          {userServices.length > 0 ? (
-            <ul className={styles.serviceList}>
-              {userServices.map(service => (
-                <li key={service.id} className={styles.serviceItem}>
-                  <span className={styles.serviceTitle}>{service.title}</span>
-                  <div className={styles.serviceActions}>
-                    <Link to={`/edit-service/${service.id}`} className={styles.editButton}>Editar</Link>
-                    <button onClick={() => openDeleteModal(service)} className={styles.deleteButton}>Excluir</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : ( <p className={styles.noServicesText}>Você ainda não publicou nenhum serviço.</p> )}
-        </div>
-
-        <div className={styles.salesSection}>
-          <h3 className={styles.sectionTitle}>Vendas Realizadas</h3>
-          {isLoadingSales ? ( <p className={styles.loadingText}>Carregando vendas...</p> ) : sales.length > 0 ? (
-            <ul className={styles.salesList}>
-              {sales.map(sale => (
-                <li key={sale.order_id} className={styles.saleItem}>
-                  <div className={styles.saleInfo}>
-                    <span className={styles.saleServiceTitle}>{sale.service_title}</span>
-                    <span className={styles.saleDate}>Vendido em: {new Date(sale.order_date).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                  <div className={styles.buyerInfo}>
-                    <span className={styles.buyerName}>{sale.buyer_name}</span>
-                    <a href={`mailto:${sale.buyer_email}`} className={styles.buyerEmail}>{sale.buyer_email}</a>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : ( <p className={styles.noServicesText}>Você ainda não realizou nenhuma venda.</p> )}
+        <div className={styles.formContainer}>
+          <h1 className={styles.title}>{isEditMode ? 'Editar Serviço' : 'Criar um Novo Serviço'}</h1>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.formGroup}>
+              <label htmlFor="title" className={styles.label}>Título do Serviço</label>
+              <input id="title" type="text" className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="description" className={styles.label}>Descrição Detalhada</label>
+              <textarea id="description" className={styles.textarea} rows={5} value={description} onChange={(e) => setDescription(e.target.value)} />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="image" className={styles.label}>Imagem do Serviço</label>
+              <input type="file" id="image" accept="image/png, image/jpeg" className={styles.fileInput} onChange={handleImageChange} />
+            </div>
+            {imagePreview && (
+              <div className={styles.imagePreviewContainer}>
+                <img src={imagePreview} alt="Pré-visualização" className={styles.imagePreview} />
+              </div>
+            )}
+            <div className={styles.formGroup}>
+              <label htmlFor="category" className={styles.label}>Categoria</label>
+              <select id="category" className={styles.select} value={category} onChange={(e) => setCategory(e.target.value as Category)}>
+                {availableCategories.map(cat => (<option key={cat} value={cat}>{cat}</option>))}
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="price" className={styles.label}>Preço (R$)</label>
+              <input id="price" type="number" className={styles.input} value={price} onChange={(e) => setPrice(e.target.value)} />
+            </div>
+            {formError && <p className={styles.error}>{formError}</p>}
+            <button type="submit" className={styles.submitButton}>
+              {isEditMode ? 'Revisar Alterações' : 'Revisar e Publicar'}
+            </button>
+          </form>
         </div>
       </div>
-      
-      <Modal isOpen={isModalOpen} onClose={closeDeleteModal} title="Confirmar Exclusão">
+
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title={isEditMode ? 'Confirmar Alterações' : 'Revisar seu Serviço'}>
         <div className={styles.modalBodyContent}>
-          <p>Você tem certeza de que deseja excluir o serviço <strong> "{serviceToDelete?.title}"</strong>?</p>
-          <p className={styles.warningText}>Esta ação não pode ser desfeita.</p>
+          <p>Por favor, confirme os detalhes do seu serviço.</p>
+          <div className={styles.summary}>
+            {imagePreview && <img src={imagePreview} alt="Pré-visualização" className={styles.summaryImage} />}
+            <div className={styles.summaryDetails}>
+              <h4>{title || "Seu título aqui"}</h4>
+              <p><strong>Categoria:</strong> {category}</p>
+              <p><strong>Preço:</strong> {Number(price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+            </div>
+          </div>
           <div className={styles.modalActions}>
-            <button onClick={closeDeleteModal} className={styles.cancelButton}>Cancelar</button>
-            <button onClick={confirmDeleteService} className={styles.confirmDeleteButton}>Sim, Excluir</button>
+            <button onClick={() => setIsConfirmModalOpen(false)} className={styles.cancelButton} disabled={isUploading}>
+              Voltar e Editar
+            </button>
+            <button onClick={handleConfirmSubmit} className={styles.confirmSubmitButton} disabled={isUploading}>
+              {isUploading ? 'Enviando...' : (isEditMode ? 'Confirmar e Salvar' : 'Publicar Serviço')}
+            </button>
           </div>
         </div>
       </Modal>
@@ -141,4 +191,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default CreateService;
