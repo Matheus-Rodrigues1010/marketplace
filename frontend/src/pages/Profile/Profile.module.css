@@ -274,3 +274,21 @@
   color: #9ca3af;
   text-align: center;
 }
+
+/* === ADICIONE ESTE BLOCO NO FINAL de Profile.module.css === */
+
+.profileActions { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+.editProfileButton { composes: logoutButton; background-color: #3b82f6; }
+.editProfileButton:hover { background-color: #2563eb; }
+
+/* Estilos para o formulário no modal de edição */
+.formGroup { display: flex; flex-direction: column; margin-bottom: 1.5rem; }
+.label { margin-bottom: 0.5rem; font-weight: 500; color: #d1d5db; text-align: left; }
+.input, .fileInput { width: 100%; padding: 0.8rem 1rem; background-color: #374151; border: 1px solid #4b5563; border-radius: 6px; color: #f3f4f6; font-size: 1rem; transition: border-color 0.2s; box-sizing: border-box; }
+.input:focus { outline: none; border-color: #3b82f6; }
+.fileInput { padding: 0.7rem; cursor: pointer; }
+.fileInput::file-selector-button { margin-right: 1rem; border: none; background: #3b82f6; padding: 0.6rem 1rem; border-radius: 4px; color: #fff; cursor: pointer; transition: background-color .2s ease-in-out; }
+.fileInput::file-selector-button:hover { background-color: #2563eb; }
+
+.avatarPreviewContainer { text-align: center; margin-bottom: 1.5rem; }
+.avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #4b5563; }
