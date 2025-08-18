@@ -2,8 +2,6 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import apiUrl from '../apiConfig';
 
-// Função para configurar o token JWT nos cabeçalhos padrão do axios
-// Isso garante que cada requisição futura já envie o token.
 const setAuthToken = (token: string | null) => {
   if (token) {
     axios.defaults.headers.common['x-auth-token'] = token;
@@ -12,11 +10,11 @@ const setAuthToken = (token: string | null) => {
   }
 };
 
-// Interfaces (sem alterações)
 interface IUser {
   id: number;
   name: string;
   email: string;
+  avatar_url?: string;
 }
 
 interface IAuthContext {
@@ -26,6 +24,7 @@ interface IAuthContext {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (fullName: string, email: string, password: string) => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
 }
 
 export const AuthContext = createContext<IAuthContext>({
@@ -35,6 +34,7 @@ export const AuthContext = createContext<IAuthContext>({
   login: async () => {},
   logout: () => {},
   register: async () => {},
+  setUser: () => {},
 });
 
 interface AuthProviderProps {
@@ -46,13 +46,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Efeito para carregar o usuário se um token existir no localStorage
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem('token');
     if (tokenFromStorage) {
       try {
         const decoded = JSON.parse(atob(tokenFromStorage.split('.')[1]));
-        // Verifica se o token não expirou
         if (decoded.exp * 1000 < Date.now()) {
           localStorage.removeItem('token');
         } else {
@@ -67,11 +65,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  // Função de LOGIN conectada à API
   const login = async (email: string, password: string) => {
     const config = { headers: { 'Content-Type': 'application/json' } };
     const body = JSON.stringify({ email, password });
-
     try {
       const res = await axios.post(`${apiUrl}/users/login`, body, config);
       localStorage.setItem('token', res.data.token);
@@ -84,20 +80,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Função de REGISTRO conectada à API
   const register = async (fullName: string, email: string, password: string) => {
     const config = { headers: { 'Content-Type': 'application/json' } };
     const body = JSON.stringify({ fullName, email, password });
-
     try {
-      // Não precisamos do retorno aqui, apenas de sucesso ou erro
       await axios.post(`${apiUrl}/users/register`, body, config);
     } catch (err: any) {
       throw new Error(err.response?.data?.error || 'Erro ao registrar');
     }
   };
 
-  // Função de LOGOUT (limpa tudo)
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -105,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setAuthToken(null);
   };
 
-  const contextValue = { user, isLoading, token, login, logout, register };
+  const contextValue = { user, isLoading, token, login, logout, register, setUser };
 
   return (
     <AuthContext.Provider value={contextValue}>

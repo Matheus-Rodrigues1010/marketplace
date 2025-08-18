@@ -6,8 +6,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { ServiceContext, IService } from '../../contexts/ServiceContext';
 import { toast } from 'react-toastify';
 import Modal from '../../components/Modal/Modal';
-// --- A CORREÇÃO ESTÁ AQUI ---
-import styles from './Profile.module.css'; // Importa o arquivo CSS correto
+import styles from './Profile.module.css';
 
 interface ISale {
   order_id: number;
@@ -19,12 +18,19 @@ interface ISale {
 }
 
 const Profile = () => {
-  const { user, logout, isLoading: isAuthLoading, token } = useContext(AuthContext);
+  const { user, logout, isLoading: isAuthLoading, token, setUser: setAuthUser } = useContext(AuthContext);
   const { services, deleteService, loading: servicesLoading } = useContext(ServiceContext);
   const navigate = useNavigate();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<IService | null>(null);
+
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar_url || null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [sales, setSales] = useState<ISale[]>([]);
   const [isLoadingSales, setIsLoadingSales] = useState(true);
 
@@ -32,6 +38,10 @@ const Profile = () => {
     if (isAuthLoading) return;
     if (!user) {
       navigate('/login');
+    } else {
+        // Preenche os campos do formulário de edição quando o usuário carregar
+        setFullName(user.name);
+        setAvatarPreview(user.avatar_url || null);
     }
   }, [user, isAuthLoading, navigate]);
 
@@ -54,35 +64,56 @@ const Profile = () => {
     }
   }, [token, user]);
 
-  const openDeleteModal = (service: IService) => {
-    setServiceToDelete(service);
-    setIsModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setIsModalOpen(false);
-    setServiceToDelete(null);
-  };
-
+  const openDeleteModal = (service: IService) => { setServiceToDelete(service); setIsDeleteModalOpen(true); };
+  const closeDeleteModal = () => { setIsDeleteModalOpen(false); setServiceToDelete(null); };
   const confirmDeleteService = async () => {
     if (serviceToDelete) {
       try {
         await deleteService(serviceToDelete.id);
         toast.info(`Serviço "${serviceToDelete.title}" foi excluído.`);
         closeDeleteModal();
-      } catch (err) {
-        closeDeleteModal();
-      }
+      } catch (err) { closeDeleteModal(); }
+    }
+  };
+  const handleLogout = () => { logout(); };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleProfileUpdate = async () => {
+    if (!user) return;
+    setIsUploading(true);
+    let finalAvatarUrl = avatarPreview;
+
+    try {
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('image', avatarFile);
+        const res = await axios.post(`${apiUrl}/upload`, formData);
+        finalAvatarUrl = res.data.imageUrl;
+      }
+
+      const body = { fullName, avatarUrl: finalAvatarUrl };
+      const res = await axios.put(`${apiUrl}/users/profile`, body);
+
+      const updatedUserPayload = { ...user, name: res.data.full_name, avatar_url: res.data.avatar_url };
+      setAuthUser(updatedUserPayload);
+
+      toast.success('Perfil atualizado com sucesso!');
+      setIsEditProfileModalOpen(false);
+    } catch (err) {
+      toast.error('Erro ao atualizar o perfil.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const userServices = user 
-    ? services.filter(service => service.seller_id === user.id) 
-    : [];
+  const userServices = user ? services.filter(service => service.seller_id === user.id) : [];
 
   if (isAuthLoading || !user || servicesLoading) {
     return <div className={styles.loading}>Carregando perfil...</div>;
@@ -93,13 +124,16 @@ const Profile = () => {
       <div className={styles.container}>
         <div className={styles.profileCard}>
           <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&size=128`}
+            src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&size=128`}
             alt={`Avatar de ${user.name}`}
             className={styles.avatar}
           />
           <h2 className={styles.name}>{user.name}</h2>
           <p className={styles.email}>{user.email}</p>
-          <button onClick={handleLogout} className={styles.logoutButton}>Sair (Logout)</button>
+          <div className={styles.profileActions}>
+            <button onClick={() => setIsEditProfileModalOpen(true)} className={styles.editProfileButton}>Editar Perfil</button>
+            <button onClick={handleLogout} className={styles.logoutButton}>Sair</button>
+          </div>
         </div>
 
         <div className={styles.servicesSection}>
@@ -140,13 +174,37 @@ const Profile = () => {
         </div>
       </div>
       
-      <Modal isOpen={isModalOpen} onClose={closeDeleteModal} title="Confirmar Exclusão">
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal} title="Confirmar Exclusão">
         <div className={styles.modalBodyContent}>
           <p>Você tem certeza de que deseja excluir o serviço <strong> "{serviceToDelete?.title}"</strong>?</p>
           <p className={styles.warningText}>Esta ação não pode ser desfeita.</p>
           <div className={styles.modalActions}>
             <button onClick={closeDeleteModal} className={styles.cancelButton}>Cancelar</button>
             <button onClick={confirmDeleteService} className={styles.confirmDeleteButton}>Sim, Excluir</button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isEditProfileModalOpen} onClose={() => setIsEditProfileModalOpen(false)} title="Editar Perfil">
+        <div className={styles.modalBodyContent}>
+          <div className={styles.formGroup}>
+            <label htmlFor="fullName" className={styles.label}>Nome Completo</label>
+            <input id="fullName" type="text" className={styles.input} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="avatar" className={styles.label}>Foto de Perfil</label>
+            <input id="avatar" type="file" accept="image/png, image/jpeg" className={styles.fileInput} onChange={handleAvatarChange} />
+          </div>
+          {avatarPreview && (
+            <div className={styles.avatarPreviewContainer}>
+              <img src={avatarPreview} alt="Pré-visualização do avatar" className={styles.avatarPreview} />
+            </div>
+          )}
+          <div className={styles.modalActions}>
+            <button onClick={() => setIsEditProfileModalOpen(false)} className={styles.cancelButton} disabled={isUploading}>Cancelar</button>
+            <button onClick={handleProfileUpdate} className={styles.confirmSubmitButton} disabled={isUploading}>
+              {isUploading ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
           </div>
         </div>
       </Modal>
