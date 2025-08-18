@@ -47,22 +47,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const tokenFromStorage = localStorage.getItem('token');
-    if (tokenFromStorage) {
-      try {
-        const decoded = JSON.parse(atob(tokenFromStorage.split('.')[1]));
-        if (decoded.exp * 1000 < Date.now()) {
-          localStorage.removeItem('token');
-        } else {
+    const loadUser = async () => {
+      const tokenFromStorage = localStorage.getItem('token');
+      if (tokenFromStorage) {
+        setAuthToken(tokenFromStorage);
+        try {
+          const res = await axios.get(`${apiUrl}/users/me`);
+          setUser(res.data);
           setToken(tokenFromStorage);
-          setAuthToken(tokenFromStorage);
-          setUser(decoded.user);
+        } catch (error) {
+          localStorage.removeItem('token');
+          setAuthToken(null);
         }
-      } catch (error) {
-        localStorage.removeItem('token');
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+    loadUser();
   }, []);
 
   const login = async (email: string, password: string) => {
