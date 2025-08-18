@@ -47,24 +47,28 @@ router.post('/', auth, async (req, res) => {
 
 // --- ROTA PROTEGIDA: Atualizar um serviço ---
 // ROTA: PUT /api/services/:id
+// ROTA: PUT /api/services/:id
 router.put('/:id', auth, async (req, res) => {
   try {
     const { title, description, price, category, imageUrl } = req.body;
     const serviceId = req.params.id;
     const userId = req.user.id;
 
-    if (service.rows[0].seller_id !== parseInt(userId, 10)) { // Usa parseInt para garantir a comparação de números
-      return res.status(401).json({ msg: 'Não autorizado.' });
-    }
+    // 1. PRIMEIRO, busca o serviço no banco de dados para ter suas informações.
+    const serviceResult = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
 
-    const service = await db.query('SELECT * FROM services WHERE id = $1', [serviceId]);
-    if (service.rows.length === 0) {
+    // 2. AGORA, verifica se o serviço foi encontrado.
+    if (serviceResult.rows.length === 0) {
       return res.status(404).json({ msg: 'Serviço não encontrado.' });
     }
-    if (service.rows[0].seller_id !== userId) {
+
+    // 3. E ENTÃO, verifica se o usuário logado é o dono do serviço.
+    // Usamos parseInt para garantir que estamos comparando dois números.
+    if (serviceResult.rows[0].seller_id !== parseInt(userId, 10)) {
       return res.status(401).json({ msg: 'Não autorizado. Você não é o dono deste serviço.' });
     }
 
+    // 4. Se tudo estiver certo, atualiza o serviço no banco de dados.
     const { rows } = await db.query(
       `UPDATE services 
        SET title = $1, description = $2, price = $3, category = $4, image_url = $5, updated_at = NOW() 
@@ -73,6 +77,7 @@ router.put('/:id', auth, async (req, res) => {
     );
     
     res.json(rows[0]);
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Erro no Servidor');
