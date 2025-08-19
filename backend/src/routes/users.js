@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const auth = require('../middleware/auth');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // ROTA: POST /api/users/register
 router.post('/register', async (req, res) => {
@@ -76,29 +77,35 @@ router.post('/login', async (req, res) => {
 });
 
 // ROTA: GET /api/users/me
+
 router.get('/me', auth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { rows } = await db.query(
-      'SELECT id, full_name, email, avatar_url, stripe_account_id FROM users WHERE id = $1',
-      [userId]
-    );
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    const { rows } = await db.query(/* ... sua query existente ... */);
+    if (rows.length === 0) { /* ... */ }
+
+    let stripeAccountStatus = null;
+    // Se o usuário tem uma conta Stripe, buscamos o status dela
+    if (rows[0].stripe_account_id) {
+      const account = await stripe.accounts.retrieve(rows[0].stripe_account_id);
+      stripeAccountStatus = {
+        details_submitted: account.details_submitted, // O usuário já enviou os dados?
+        payouts_enabled: account.payouts_enabled,   // Ele pode receber saques?
+      };
     }
+    
     const userPayload = {
         id: rows[0].id,
         name: rows[0].full_name,
         email: rows[0].email,
         avatar_url: rows[0].avatar_url,
-        stripe_account_id: rows[0].stripe_account_id
+        stripe_account_id: rows[0].stripe_account_id,
+        stripe_account_status: stripeAccountStatus // <-- NOVO DADO
     }
     res.json(userPayload);
-  } catch (err) {
-    console.error("Erro ao buscar dados do usuário:", err.message);
-    res.status(500).send('Erro no Servidor');
-  }
+  } catch (err) { /* ... */ }
 });
+
 
 // ROTA: PUT /api/users/profile
 router.put('/profile', auth, async (req, res) => {

@@ -18,6 +18,10 @@ interface IUser {
   email: string;
   avatar_url?: string;
   stripe_account_id?: string; // Propriedade para o ID da conta Stripe
+  stripe_account_status?: { // <-- NOVA PROPRIEDADE
+    details_submitted: boolean;
+    payouts_enabled: boolean;
+  } | null;
 }
 
 interface IAuthContext {

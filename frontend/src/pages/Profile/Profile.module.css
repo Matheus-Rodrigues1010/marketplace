@@ -327,3 +327,19 @@
   background-color: #4b5563;
   cursor: not-allowed;
 }
+
+/* Adicione este bloco ao final de Profile.module.css */
+
+.statusNeedsAttention p {
+  color: #fcd34d; /* Amarelo */
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.manageAccountButton {
+  composes: logoutButton;
+  background-color: #6b7280;
+}
+.manageAccountButton:hover {
+  background-color: #4b5563;
+}

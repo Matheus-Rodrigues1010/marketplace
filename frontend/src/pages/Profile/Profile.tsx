@@ -115,11 +115,68 @@ const Profile = () => {
     }
   };
 
+  const handleManageAccount = async () => {
+    setIsProcessingStripe(true);
+    try {
+      const res = await axios.get(`${apiUrl}/payments/seller-dashboard-link`);
+      window.location.href = res.data.url;
+    } catch (err) {
+      toast.error("Não foi possível acessar o painel. Tente novamente.");
+    } finally {
+      setIsProcessingStripe(false);
+    }
+  };
+
   const userServices = user ? services.filter(service => service.seller_id === user.id) : [];
 
   if (isAuthLoading || !user || servicesLoading) {
     return <div className={styles.loading}>Carregando perfil...</div>;
   }
+  
+  const renderSellerStatus = () => {
+    if (!user.stripe_account_id) {
+      return (
+        <div className={styles.statusNotVerified}>
+          <p>Para começar a vender, configure sua conta de pagamentos.</p>
+          <button onClick={handleBecomeSeller} className={styles.becomeSellerButton} disabled={isProcessingStripe}>
+            {isProcessingStripe ? 'Aguarde...' : 'Tornar-se um Vendedor'}
+          </button>
+        </div>
+      );
+    }
+
+    if (user.stripe_account_id && !user.stripe_account_status?.details_submitted) {
+      return (
+        <div className={styles.statusNeedsAttention}>
+          <p>⚠️ Sua conta de vendedor está quase pronta! Conclua seu cadastro na Stripe para poder receber saques.</p>
+          <button onClick={handleManageAccount} className={styles.becomeSellerButton} disabled={isProcessingStripe}>
+            {isProcessingStripe ? 'Aguarde...' : 'Concluir Cadastro'}
+          </button>
+        </div>
+      );
+    }
+    
+    if (user.stripe_account_id && user.stripe_account_status?.payouts_enabled) {
+      return (
+        <div className={styles.statusVerified}>
+          <p>✅ Sua conta de vendedor está ativa e pronta para receber pagamentos e saques.</p>
+           <button onClick={handleManageAccount} className={styles.manageAccountButton} disabled={isProcessingStripe}>
+            {isProcessingStripe ? 'Aguarde...' : 'Gerenciar Conta'}
+          </button>
+        </div>
+      );
+    }
+    
+    return (
+        <div className={styles.statusNeedsAttention}>
+          <p>ℹ️ A Stripe está analisando suas informações. Você já pode receber pagamentos.</p>
+           <button onClick={handleManageAccount} className={styles.manageAccountButton} disabled={isProcessingStripe}>
+            {isProcessingStripe ? 'Aguarde...' : 'Ver Status'}
+          </button>
+        </div>
+    );
+  };
+
 
   return (
     <>
@@ -136,18 +193,7 @@ const Profile = () => {
 
         <div className={styles.sellerSection}>
           <h3 className={styles.sectionTitle}>Status de Vendedor</h3>
-          {user.stripe_account_id ? (
-            <div className={styles.statusVerified}>
-              <p>✅ Sua conta de vendedor está ativa e pronta para receber pagamentos.</p>
-            </div>
-          ) : (
-            <div className={styles.statusNotVerified}>
-              <p>Para começar a vender seus serviços e receber pagamentos, você precisa configurar sua conta de vendedor.</p>
-              <button onClick={handleBecomeSeller} className={styles.becomeSellerButton} disabled={isProcessingStripe}>
-                {isProcessingStripe ? 'Aguarde...' : 'Tornar-se um Vendedor'}
-              </button>
-            </div>
-          )}
+          {renderSellerStatus()}
         </div>
 
         <div className={styles.servicesSection}>
