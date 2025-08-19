@@ -292,3 +292,38 @@
 
 .avatarPreviewContainer { text-align: center; margin-bottom: 1.5rem; }
 .avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #4b5563; }
+
+/* === COLE ESTE BLOCO NO FINAL do seu Profile.module.css === */
+
+.sellerSection {
+  max-width: 600px;
+  margin: 2rem auto 0 auto;
+  background-color: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.statusVerified p {
+  color: #a7f3d0; /* Verde claro */
+  font-weight: 500;
+  margin: 0;
+}
+
+.statusNotVerified p {
+  color: #d1d5db;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.becomeSellerButton {
+  /* Reutiliza o estilo do botão azul de editar perfil */
+  composes: editProfileButton; 
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+}
+
+.becomeSellerButton:disabled {
+  background-color: #4b5563;
+  cursor: not-allowed;
+}
