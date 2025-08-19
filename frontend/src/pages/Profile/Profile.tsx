@@ -24,22 +24,20 @@ const Profile = () => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<IService | null>(null);
-
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [fullName, setFullName] = useState(user?.name || '');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar_url || null);
   const [isUploading, setIsUploading] = useState(false);
-
   const [sales, setSales] = useState<ISale[]>([]);
   const [isLoadingSales, setIsLoadingSales] = useState(true);
+  const [isProcessingStripe, setIsProcessingStripe] = useState(false);
 
   useEffect(() => {
     if (isAuthLoading) return;
     if (!user) {
       navigate('/login');
     } else {
-        // Preenche os campos do formulário de edição quando o usuário carregar
         setFullName(user.name);
         setAvatarPreview(user.avatar_url || null);
     }
@@ -59,9 +57,7 @@ const Profile = () => {
         }
       }
     };
-    if (user) {
-      fetchSales();
-    }
+    if (user) { fetchSales(); }
   }, [token, user]);
 
   const openDeleteModal = (service: IService) => { setServiceToDelete(service); setIsDeleteModalOpen(true); };
@@ -79,17 +75,13 @@ const Profile = () => {
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
-    }
+    if (file) { setAvatarFile(file); setAvatarPreview(URL.createObjectURL(file)); }
   };
 
   const handleProfileUpdate = async () => {
     if (!user) return;
     setIsUploading(true);
     let finalAvatarUrl = avatarPreview;
-
     try {
       if (avatarFile) {
         const formData = new FormData();
@@ -97,19 +89,29 @@ const Profile = () => {
         const res = await axios.post(`${apiUrl}/upload`, formData);
         finalAvatarUrl = res.data.imageUrl;
       }
-
       const body = { fullName, avatarUrl: finalAvatarUrl };
       const res = await axios.put(`${apiUrl}/users/profile`, body);
-
-      const updatedUserPayload = { ...user, name: res.data.full_name, avatar_url: res.data.avatar_url };
+      const updatedUserPayload = { ...user, name: res.data.name, avatar_url: res.data.avatar_url, stripe_account_id: res.data.stripe_account_id };
       setAuthUser(updatedUserPayload);
-
       toast.success('Perfil atualizado com sucesso!');
       setIsEditProfileModalOpen(false);
     } catch (err) {
       toast.error('Erro ao atualizar o perfil.');
     } finally {
       setIsUploading(false);
+    }
+  };
+  
+  const handleBecomeSeller = async () => {
+    setIsProcessingStripe(true);
+    try {
+      const res = await axios.post(`${apiUrl}/payments/create-connected-account`);
+      window.location.href = res.data.url;
+    } catch (err) {
+      toast.error("Não foi possível iniciar o cadastro de vendedor. Tente novamente.");
+      console.error("Erro ao criar conta Stripe:", err);
+    } finally {
+      setIsProcessingStripe(false);
     }
   };
 
@@ -123,11 +125,7 @@ const Profile = () => {
     <>
       <div className={styles.container}>
         <div className={styles.profileCard}>
-          <img
-            src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&size=128`}
-            alt={`Avatar de ${user.name}`}
-            className={styles.avatar}
-          />
+          <img src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=3b82f6&color=fff&size=128`} alt={`Avatar de ${user.name}`} className={styles.avatar} />
           <h2 className={styles.name}>{user.name}</h2>
           <p className={styles.email}>{user.email}</p>
           <div className={styles.profileActions}>
@@ -136,41 +134,30 @@ const Profile = () => {
           </div>
         </div>
 
+        <div className={styles.sellerSection}>
+          <h3 className={styles.sectionTitle}>Status de Vendedor</h3>
+          {user.stripe_account_id ? (
+            <div className={styles.statusVerified}>
+              <p>✅ Sua conta de vendedor está ativa e pronta para receber pagamentos.</p>
+            </div>
+          ) : (
+            <div className={styles.statusNotVerified}>
+              <p>Para começar a vender seus serviços e receber pagamentos, você precisa configurar sua conta de vendedor.</p>
+              <button onClick={handleBecomeSeller} className={styles.becomeSellerButton} disabled={isProcessingStripe}>
+                {isProcessingStripe ? 'Aguarde...' : 'Tornar-se um Vendedor'}
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className={styles.servicesSection}>
           <h3 className={styles.sectionTitle}>Meus Serviços Publicados</h3>
-          {userServices.length > 0 ? (
-            <ul className={styles.serviceList}>
-              {userServices.map(service => (
-                <li key={service.id} className={styles.serviceItem}>
-                  <span className={styles.serviceTitle}>{service.title}</span>
-                  <div className={styles.serviceActions}>
-                    <Link to={`/edit-service/${service.id}`} className={styles.editButton}>Editar</Link>
-                    <button onClick={() => openDeleteModal(service)} className={styles.deleteButton}>Excluir</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : ( <p className={styles.noServicesText}>Você ainda não publicou nenhum serviço.</p> )}
+          {userServices.length > 0 ? ( <ul className={styles.serviceList}>{userServices.map(service => ( <li key={service.id} className={styles.serviceItem}><span className={styles.serviceTitle}>{service.title}</span><div className={styles.serviceActions}><Link to={`/edit-service/${service.id}`} className={styles.editButton}>Editar</Link><button onClick={() => openDeleteModal(service)} className={styles.deleteButton}>Excluir</button></div></li>))}</ul> ) : ( <p className={styles.noServicesText}>Você ainda não publicou nenhum serviço.</p> )}
         </div>
 
         <div className={styles.salesSection}>
           <h3 className={styles.sectionTitle}>Vendas Realizadas</h3>
-          {isLoadingSales ? ( <p className={styles.loadingText}>Carregando vendas...</p> ) : sales.length > 0 ? (
-            <ul className={styles.salesList}>
-              {sales.map(sale => (
-                <li key={sale.order_id} className={styles.saleItem}>
-                  <div className={styles.saleInfo}>
-                    <span className={styles.saleServiceTitle}>{sale.service_title}</span>
-                    <span className={styles.saleDate}>Vendido em: {new Date(sale.order_date).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                  <div className={styles.buyerInfo}>
-                    <span className={styles.buyerName}>{sale.buyer_name}</span>
-                    <a href={`mailto:${sale.buyer_email}`} className={styles.buyerEmail}>{sale.buyer_email}</a>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : ( <p className={styles.noServicesText}>Você ainda não realizou nenhuma venda.</p> )}
+          {isLoadingSales ? ( <p className={styles.loadingText}>Carregando vendas...</p> ) : sales.length > 0 ? ( <ul className={styles.salesList}>{sales.map(sale => ( <li key={sale.order_id} className={styles.saleItem}><div className={styles.saleInfo}><span className={styles.saleServiceTitle}>{sale.service_title}</span><span className={styles.saleDate}>Vendido em: {new Date(sale.order_date).toLocaleDateString('pt-BR')}</span></div><div className={styles.buyerInfo}><span className={styles.buyerName}>{sale.buyer_name}</span><a href={`mailto:${sale.buyer_email}`} className={styles.buyerEmail}>{sale.buyer_email}</a></div></li>))}</ul> ) : ( <p className={styles.noServicesText}>Você ainda não realizou nenhuma venda.</p> )}
         </div>
       </div>
       
@@ -195,16 +182,10 @@ const Profile = () => {
             <label htmlFor="avatar" className={styles.label}>Foto de Perfil</label>
             <input id="avatar" type="file" accept="image/png, image/jpeg" className={styles.fileInput} onChange={handleAvatarChange} />
           </div>
-          {avatarPreview && (
-            <div className={styles.avatarPreviewContainer}>
-              <img src={avatarPreview} alt="Pré-visualização do avatar" className={styles.avatarPreview} />
-            </div>
-          )}
+          {avatarPreview && ( <div className={styles.avatarPreviewContainer}><img src={avatarPreview} alt="Pré-visualização do avatar" className={styles.avatarPreview} /></div> )}
           <div className={styles.modalActions}>
             <button onClick={() => setIsEditProfileModalOpen(false)} className={styles.cancelButton} disabled={isUploading}>Cancelar</button>
-            <button onClick={handleProfileUpdate} className={styles.confirmSubmitButton} disabled={isUploading}>
-              {isUploading ? 'Salvando...' : 'Salvar Alterações'}
-            </button>
+            <button onClick={handleProfileUpdate} className={styles.confirmSubmitButton} disabled={isUploading}>{isUploading ? 'Salvando...' : 'Salvar Alterações'}</button>
           </div>
         </div>
       </Modal>

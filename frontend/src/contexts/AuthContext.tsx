@@ -10,11 +10,14 @@ const setAuthToken = (token: string | null) => {
   }
 };
 
+// --- A CORREÇÃO ESTÁ AQUI ---
+// Adicionamos a propriedade opcional 'stripe_account_id' à interface do usuário.
 interface IUser {
   id: number;
   name: string;
   email: string;
   avatar_url?: string;
+  stripe_account_id?: string; // Propriedade para o ID da conta Stripe
 }
 
 interface IAuthContext {
