@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 const auth = require('../middleware/auth');
 
+// ROTA: POST /api/users/register
 router.post('/register', async (req, res) => {
   const { fullName, email, password } = req.body;
   if (!fullName || !email || !password) {
@@ -31,6 +32,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// ROTA: POST /api/users/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -51,7 +53,8 @@ router.post('/login', async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.full_name,
-        avatar_url: user.avatar_url
+        avatar_url: user.avatar_url,
+        stripe_account_id: user.stripe_account_id
       },
     };
     jwt.sign(
@@ -72,11 +75,12 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ROTA: GET /api/users/me
 router.get('/me', auth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { rows } = await db.query(
-      'SELECT id, full_name, email, avatar_url FROM users WHERE id = $1',
+      'SELECT id, full_name, email, avatar_url, stripe_account_id FROM users WHERE id = $1',
       [userId]
     );
     if (rows.length === 0) {
@@ -86,7 +90,8 @@ router.get('/me', auth, async (req, res) => {
         id: rows[0].id,
         name: rows[0].full_name,
         email: rows[0].email,
-        avatar_url: rows[0].avatar_url
+        avatar_url: rows[0].avatar_url,
+        stripe_account_id: rows[0].stripe_account_id
     }
     res.json(userPayload);
   } catch (err) {
@@ -95,6 +100,7 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
+// ROTA: PUT /api/users/profile
 router.put('/profile', auth, async (req, res) => {
   const userId = req.user.id;
   const { fullName, avatarUrl } = req.body;
@@ -109,14 +115,15 @@ router.put('/profile', auth, async (req, res) => {
     const newFullName = fullName || currentUser.rows[0].full_name;
     const newAvatarUrl = avatarUrl || currentUser.rows[0].avatar_url;
     const { rows } = await db.query(
-      'UPDATE users SET full_name = $1, avatar_url = $2 WHERE id = $3 RETURNING id, email, full_name, avatar_url',
+      'UPDATE users SET full_name = $1, avatar_url = $2 WHERE id = $3 RETURNING id, email, full_name, avatar_url, stripe_account_id',
       [newFullName, newAvatarUrl, userId]
     );
     const updatedUserPayload = {
       id: rows[0].id,
       name: rows[0].full_name,
       email: rows[0].email,
-      avatar_url: rows[0].avatar_url
+      avatar_url: rows[0].avatar_url,
+      stripe_account_id: rows[0].stripe_account_id
     };
     res.json(updatedUserPayload);
   } catch (err) {

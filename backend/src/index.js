@@ -9,6 +9,7 @@ const serviceRoutes = require('./routes/services');
 const orderRoutes = require('./routes/orders');
 // 1. Importar a nova rota de upload
 const uploadRoutes = require('./routes/upload');
+const paymentRoutes = require('./routes/payments');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
 // 2. Usar a nova rota de upload
 app.use('/api/upload', uploadRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
