@@ -1,4 +1,3 @@
-// backend/src/routes/payments.js
 const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -11,17 +10,26 @@ router.post('/create-connected-account', auth, async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // Cria uma conta "Express" na Stripe. É a mais recomendada para marketplaces.
+    // Busca o usuário para garantir que ele não tenha já uma conta
+    const userResult = await db.query('SELECT email, stripe_account_id FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+    if (userResult.rows[0].stripe_account_id) {
+        return res.status(400).json({ error: 'Este usuário já é um vendedor.' });
+    }
+
+    // Cria uma conta "Express" na Stripe.
     const account = await stripe.accounts.create({
       type: 'express',
-      email: req.user.email, // Pré-preenche o e-mail
+      email: userResult.rows[0].email,
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
     });
 
-    // Salva o ID da conta Stripe no nosso banco de dados, associado ao usuário
+    // Salva o ID da conta Stripe no nosso banco de dados
     await db.query(
       'UPDATE users SET stripe_account_id = $1 WHERE id = $2',
       [account.id, userId]
@@ -30,8 +38,8 @@ router.post('/create-connected-account', auth, async (req, res) => {
     // Cria um link de onboarding para o usuário completar o cadastro
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
-      refresh_url: `${process.env.FRONTEND_URL}/profile`, // Para onde voltar se o link expirar
-      return_url: `${process.env.FRONTEND_URL}/profile`, // Para onde voltar após completar
+      refresh_url: `${process.env.FRONTEND_URL}/profile`,
+      return_url: `${process.env.FRONTEND_URL}/profile`,
       type: 'account_onboarding',
     });
     

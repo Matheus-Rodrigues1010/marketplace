@@ -3,17 +3,16 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db');
 
-// Importar as rotas existentes
+// Importação de todas as rotas
 const userRoutes = require('./routes/users');
 const serviceRoutes = require('./routes/services');
 const orderRoutes = require('./routes/orders');
-// 1. Importar a nova rota de upload
 const uploadRoutes = require('./routes/upload');
-const paymentRoutes = require('./routes/payments');
+const paymentRoutes = require('./routes/payments'); // Importa a rota de pagamentos
 
 const app = express();
 
-// --- CONFIGURAÇÃO DO CORS ---
+// Configuração do CORS
 const whitelist = [
   'http://localhost:5173',
   'https://marketplace-ashen-delta.vercel.app' // Verifique se esta é sua URL correta
@@ -28,23 +27,21 @@ const corsOptions = {
   }
 };
 app.use(cors(corsOptions));
-// --- FIM DA CONFIGURAÇÃO DO CORS ---
-
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+// Rota de Teste
 app.get('/', (req, res) => {
   res.json({ message: 'API do Marketplace está funcionando!' });
 });
 
-// Usar as rotas
+// Uso de todas as rotas
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
-// 2. Usar a nova rota de upload
 app.use('/api/upload', uploadRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentRoutes); // Diz ao Express para usar a rota de pagamentos
 
 app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
