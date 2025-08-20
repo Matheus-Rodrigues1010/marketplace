@@ -106,11 +106,14 @@ const Profile = () => {
     setIsProcessingStripe(true);
     try {
       const res = await axios.post(`${apiUrl}/payments/create-connected-account`);
-      window.location.href = res.data.url;
+      if (res.data && res.data.url) {
+        window.location.href = res.data.url;
+      } else {
+        throw new Error("A resposta da API não continha uma URL válida.");
+      }
     } catch (err) {
       toast.error("Não foi possível iniciar o cadastro de vendedor. Tente novamente.");
       console.error("Erro ao criar conta Stripe:", err);
-    } finally {
       setIsProcessingStripe(false);
     }
   };
@@ -119,10 +122,14 @@ const Profile = () => {
     setIsProcessingStripe(true);
     try {
       const res = await axios.get(`${apiUrl}/payments/seller-dashboard-link`);
-      window.location.href = res.data.url;
+      if (res.data && res.data.url) {
+        window.location.href = res.data.url;
+      } else {
+        throw new Error("A resposta da API não continha uma URL válida.");
+      }
     } catch (err) {
-      toast.error("Não foi possível acessar o painel. Tente novamente.");
-    } finally {
+      toast.error("Não foi possível acessar o painel do vendedor. Tente novamente.");
+      console.error("Erro ao gerar link do dashboard Stripe:", err);
       setIsProcessingStripe(false);
     }
   };
@@ -176,7 +183,6 @@ const Profile = () => {
         </div>
     );
   };
-
 
   return (
     <>
