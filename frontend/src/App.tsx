@@ -15,14 +15,20 @@ import Profile from './pages/Profile/Profile';
 import Services from './pages/Services/Services';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
 import CreateService from './pages/CreateService/CreateService';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+
 // 1. Importar a nova página
 import MyOrders from './pages/MyOrders/MyOrders';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function App() {
   return (
     <AuthProvider>
       <ServiceProvider>
         <OrderProvider>
+        <Elements stripe={stripePromise}>
           <Router>
             <Navbar />
             <main>
@@ -45,6 +51,7 @@ export default function App() {
             </main>
             <ToastContainer theme="dark" position="bottom-right" autoClose={4000} />
           </Router>
+          </Elements>
         </OrderProvider>
       </ServiceProvider>
     </AuthProvider>

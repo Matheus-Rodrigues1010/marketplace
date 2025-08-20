@@ -8,7 +8,7 @@ const userRoutes = require('./routes/users');
 const serviceRoutes = require('./routes/services');
 const orderRoutes = require('./routes/orders');
 const uploadRoutes = require('./routes/upload');
-const paymentRoutes = require('./routes/payments'); // Importa a rota de pagamentos
+const paymentRoutes = require('./routes/payments');
 
 const app = express();
 
@@ -41,7 +41,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/payments', paymentRoutes); // Diz ao Express para usar a rota de pagamentos
+app.use('/api/payments', paymentRoutes);
 
 app.listen(PORT, async () => {
   console.log(`Servidor rodando na porta ${PORT}`);
