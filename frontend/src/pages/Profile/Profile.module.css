@@ -343,3 +343,8 @@
 .manageAccountButton:hover {
   background-color: #4b5563;
 }
+
+.statusInReview p {
+  color: #93c5fd; /* Um azul claro para status informativo */
+  line-height: 1.6;
+}

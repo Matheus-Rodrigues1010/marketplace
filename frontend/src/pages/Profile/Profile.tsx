@@ -104,36 +104,32 @@ const Profile = () => {
   
   const handleBecomeSeller = async () => {
     setIsProcessingStripe(true);
-    const url = `${apiUrl}/payments/create-connected-account`;
-    console.log("Tentando acessar a URL da API:", url);
     try {
-      const res = await axios.post(url);
+      const res = await axios.post(`${apiUrl}/payments/create-connected-account`);
       if (res.data && res.data.url) {
         window.location.href = res.data.url;
       } else {
         throw new Error("A resposta da API não continha uma URL válida.");
       }
-    } catch (err: any) {
-      console.error("Erro detalhado ao criar conta Stripe:", err.response || err);
-      toast.error("Não foi possível iniciar o cadastro de vendedor. Verifique o console para mais detalhes.");
+    } catch (err) {
+      toast.error("Não foi possível iniciar o cadastro de vendedor. Tente novamente.");
+      console.error("Erro ao criar conta Stripe:", err);
       setIsProcessingStripe(false);
     }
   };
 
   const handleManageAccount = async () => {
     setIsProcessingStripe(true);
-    const url = `${apiUrl}/payments/seller-dashboard-link`;
-    console.log("Tentando acessar a URL da API:", url);
     try {
-      const res = await axios.get(url);
+      const res = await axios.get(`${apiUrl}/payments/seller-dashboard-link`);
       if (res.data && res.data.url) {
         window.location.href = res.data.url;
       } else {
         throw new Error("A resposta da API não continha uma URL válida.");
       }
-    } catch (err: any) {
-      console.error("Erro detalhado ao gerar link do dashboard Stripe:", err.response || err);
-      toast.error("Não foi possível acessar o painel do vendedor. Verifique o console para mais detalhes.");
+    } catch (err) {
+      toast.error("Não foi possível acessar o painel do vendedor. Tente novamente.");
+      console.error("Erro ao gerar link do dashboard Stripe:", err);
       setIsProcessingStripe(false);
     }
   };
@@ -145,6 +141,7 @@ const Profile = () => {
   }
   
   const renderSellerStatus = () => {
+    // Caso 1: Usuário ainda não é um vendedor
     if (!user.stripe_account_id) {
       return (
         <div className={styles.statusNotVerified}>
@@ -155,34 +152,45 @@ const Profile = () => {
         </div>
       );
     }
+
+    // Caso 2: Conta criada, mas precisa preencher os dados
     if (user.stripe_account_id && !user.stripe_account_status?.details_submitted) {
       return (
         <div className={styles.statusNeedsAttention}>
-          <p>⚠️ Sua conta de vendedor está quase pronta! Conclua seu cadastro na Stripe para poder receber saques.</p>
+          <p>⚠️ Sua conta está quase pronta! Conclua seu cadastro na Stripe para que possamos verificar seus dados.</p>
           <button onClick={handleManageAccount} className={styles.becomeSellerButton} disabled={isProcessingStripe}>
             {isProcessingStripe ? 'Aguarde...' : 'Concluir Cadastro'}
           </button>
         </div>
       );
     }
+    
+    // Caso 3: Dados enviados, saques habilitados (Tudo OK)
     if (user.stripe_account_id && user.stripe_account_status?.payouts_enabled) {
       return (
         <div className={styles.statusVerified}>
-          <p>✅ Sua conta de vendedor está ativa e pronta para receber pagamentos e saques.</p>
+          <p>✅ Sua conta de vendedor está ativa e verificada. Você está pronto para receber pagamentos e saques.</p>
            <button onClick={handleManageAccount} className={styles.manageAccountButton} disabled={isProcessingStripe}>
             {isProcessingStripe ? 'Aguarde...' : 'Gerenciar Conta'}
           </button>
         </div>
       );
     }
-    return (
-        <div className={styles.statusNeedsAttention}>
-          <p>ℹ️ A Stripe está analisando suas informações. Você já pode receber pagamentos.</p>
+    
+    // Caso 4: Dados enviados, mas saques ainda não habilitados (Em análise)
+    if (user.stripe_account_id && user.stripe_account_status?.details_submitted && !user.stripe_account_status?.payouts_enabled) {
+      return (
+        <div className={styles.statusInReview}>
+          <p>ℹ️ Obrigado! A Stripe está analisando suas informações. Este processo geralmente leva alguns minutos no modo de teste. Você já pode receber pagamentos.</p>
            <button onClick={handleManageAccount} className={styles.manageAccountButton} disabled={isProcessingStripe}>
-            {isProcessingStripe ? 'Aguarde...' : 'Ver Status'}
+            {isProcessingStripe ? 'Aguarde...' : 'Ver Status na Stripe'}
           </button>
         </div>
-    );
+      );
+    }
+
+    // Fallback genérico, caso algum estado não seja coberto
+    return <p className={styles.loadingText}>Carregando status da conta...</p>;
   };
 
   return (
