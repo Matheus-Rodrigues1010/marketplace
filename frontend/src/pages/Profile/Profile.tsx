@@ -104,32 +104,36 @@ const Profile = () => {
   
   const handleBecomeSeller = async () => {
     setIsProcessingStripe(true);
+    const url = `${apiUrl}/payments/create-connected-account`;
+    console.log("Tentando acessar a URL da API:", url);
     try {
-      const res = await axios.post(`${apiUrl}/payments/create-connected-account`);
+      const res = await axios.post(url);
       if (res.data && res.data.url) {
         window.location.href = res.data.url;
       } else {
         throw new Error("A resposta da API não continha uma URL válida.");
       }
-    } catch (err) {
-      toast.error("Não foi possível iniciar o cadastro de vendedor. Tente novamente.");
-      console.error("Erro ao criar conta Stripe:", err);
+    } catch (err: any) {
+      console.error("Erro detalhado ao criar conta Stripe:", err.response || err);
+      toast.error("Não foi possível iniciar o cadastro de vendedor. Verifique o console para mais detalhes.");
       setIsProcessingStripe(false);
     }
   };
 
   const handleManageAccount = async () => {
     setIsProcessingStripe(true);
+    const url = `${apiUrl}/payments/seller-dashboard-link`;
+    console.log("Tentando acessar a URL da API:", url);
     try {
-      const res = await axios.get(`${apiUrl}/payments/seller-dashboard-link`);
+      const res = await axios.get(url);
       if (res.data && res.data.url) {
         window.location.href = res.data.url;
       } else {
         throw new Error("A resposta da API não continha uma URL válida.");
       }
-    } catch (err) {
-      toast.error("Não foi possível acessar o painel do vendedor. Tente novamente.");
-      console.error("Erro ao gerar link do dashboard Stripe:", err);
+    } catch (err: any) {
+      console.error("Erro detalhado ao gerar link do dashboard Stripe:", err.response || err);
+      toast.error("Não foi possível acessar o painel do vendedor. Verifique o console para mais detalhes.");
       setIsProcessingStripe(false);
     }
   };
@@ -151,7 +155,6 @@ const Profile = () => {
         </div>
       );
     }
-
     if (user.stripe_account_id && !user.stripe_account_status?.details_submitted) {
       return (
         <div className={styles.statusNeedsAttention}>
@@ -162,7 +165,6 @@ const Profile = () => {
         </div>
       );
     }
-    
     if (user.stripe_account_id && user.stripe_account_status?.payouts_enabled) {
       return (
         <div className={styles.statusVerified}>
@@ -173,7 +175,6 @@ const Profile = () => {
         </div>
       );
     }
-    
     return (
         <div className={styles.statusNeedsAttention}>
           <p>ℹ️ A Stripe está analisando suas informações. Você já pode receber pagamentos.</p>
